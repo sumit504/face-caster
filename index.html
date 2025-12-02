@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face-caster - Share Real Faces</title>
+    
+    <!-- Farcaster Mini App Metadata -->
+    <meta name="fc:miniapp" content='{
+      "version":"1",
+      "imageUrl":"https://face-caster.vercel.app/image.png",
+      "button":{
+        "title":"Share Your Face",
+        "action":{
+          "type":"launch_frame",
+          "name":"Face-caster",
+          "url":"https://face-caster.vercel.app",
+          "splashImageUrl":"https://face-caster.vercel.app/splash.png",
+          "splashBackgroundColor":"#00ff88"
+        }
+      }
+    }' />
+
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Crimson+Pro:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
+    
+    <style>
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #1a1a1a;
+            --bg-card: #151515;
+            --accent: #00ff88;
+            --accent-dim: #00cc6a;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --border: #2a2a2a;
+            --error: #ff4444;
+            --warning: #ff8800;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Crimson Pro', serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 20px;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 0 60px;
+            border-bottom: 2px solid var(--accent);
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+            opacity: 0.03;
+            animation: pulse 8s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.03; }
+            50% { transform: scale(1.2); opacity: 0.05; }
+        }
+
+        .header h1 {
+            font-family: 'Space Mono', monospace;
+            font-size: 3rem;
+            font-weight: 700;
+            letter-spacing: -2px;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, var(--accent), var(--text-primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            font-weight: 300;
+            position: relative;
+        }
+
+        .profile-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+            border: 2px solid rgba(0, 255, 136, 0.3);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(20px);
+            display: none;
+        }
+
+        .profile-content {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .profile-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dim));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--bg-primary);
+            flex-shrink: 0;
+            overflow: hidden;
+            border: 3px solid var(--accent);
+            box-shadow: 0 4px 16px rgba(0, 255, 136, 0.3);
+        }
+
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .profile-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .profile-fid {
+            color: var(--accent);
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .post-limit-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-card);
+            padding: 8px 16px;
+            border-radius: 20px;
+            margin-top: 16px;
+            border: 1px solid var(--border);
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85rem;
+        }
+
+        .post-limit-indicator .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+            animation: blink 2s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .connect-wallet-section {
+            text-align: center;
+            padding: 60px 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+
+        .connect-wallet-section h2 {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.8rem;
+            margin-bottom: 16px;
+            color: var(--accent);
+        }
+
+        .create-post-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 40px;
+            animation: slideDown 0.4s ease-out 0.2s both;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .create-post-section h2 {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: var(--accent);
+        }
+
+        .image-upload-area {
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 16px;
+            background: var(--bg-secondary);
+        }
+
+        .image-upload-area:hover {
+            border-color: var(--accent);
+            background: var(--bg-primary);
+        }
+
+        .image-upload-area.has-image {
+            padding: 0;
+            border-style: solid;
+        }
+
+        .image-preview {
+            width: 100%;
+            max-height: 400px;
+            object-fit: cover;
+            border-radius: 6px;
+            display: block;
+        }
+
+        .upload-prompt {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .upload-prompt strong {
+            color: var(--accent);
+            font-family: 'Space Mono', monospace;
+        }
+
+        .caption-input {
+            width: 100%;
+            padding: 12px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: 'Crimson Pro', serif;
+            font-size: 1rem;
+            margin-bottom: 16px;
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .caption-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .post-button {
+            background: var(--accent);
+            color: var(--bg-primary);
+            border: none;
+            padding: 12px 32px;
+            border-radius: 8px;
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .post-button:hover:not(:disabled) {
+            background: var(--accent-dim);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 255, 136, 0.3);
+        }
+
+        .post-button:disabled {
+            background: var(--border);
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .error-message {
+            background: rgba(255, 68, 68, 0.1);
+            border: 1px solid var(--error);
+            color: var(--error);
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 16px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85rem;
+        }
+
+        .warning-message {
+            background: rgba(255, 136, 0, 0.1);
+            border: 1px solid var(--warning);
+            color: var(--warning);
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85rem;
+        }
+
+        .feed {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .post-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            animation: slideUp 0.5s ease-out both;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .post-header {
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .post-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dim));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            color: var(--bg-primary);
+        }
+
+        .post-user-info h3 {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.95rem;
+            font-weight: 700;
+        }
+
+        .post-time {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .post-image {
+            width: 100%;
+            max-height: 600px;
+            object-fit: cover;
+            display: block;
+            background: var(--bg-secondary);
+        }
+
+        .post-content {
+            padding: 20px;
+        }
+
+        .post-caption {
+            margin-bottom: 16px;
+            font-size: 1.05rem;
+            line-height: 1.6;
+        }
+
+        .post-actions {
+            display: flex;
+            gap: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 16px;
+        }
+
+        .action-button {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+            padding: 8px 12px;
+            border-radius: 6px;
+        }
+
+        .action-button:hover {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .action-button.liked {
+            color: var(--accent);
+        }
+
+        .comments-section {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .comment {
+            background: var(--bg-secondary);
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+        }
+
+        .comment strong {
+            font-family: 'Space Mono', monospace;
+            color: var(--accent);
+            margin-right: 8px;
+        }
+
+        .comment-input-area {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .comment-input {
+            flex: 1;
+            padding: 10px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: 'Crimson Pro', serif;
+            font-size: 0.95rem;
+        }
+
+        .comment-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .comment-button {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            color: var(--accent);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-family: 'Space Mono', monospace;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.85rem;
+        }
+
+        .comment-button:hover:not(:disabled) {
+            background: var(--accent);
+            color: var(--bg-primary);
+        }
+
+        .comment-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state h3 {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.5rem;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 640px) {
+            .header h1 { font-size: 2rem; }
+            .app-container { padding: 16px; }
+            .create-post-section { padding: 16px; }
+        }
+    </style>
+</head>
+<body>
+    <div id="root">
+        <div class="app-container">
+            <header class="header">
+                <h1>Face-caster</h1>
+                <p>Decentralized real face social network</p>
+                <p style="font-size: 0.85rem; margin-top: 12px; color: var(--accent);">
+                    Powered by Base + IPFS + Farcaster
+                </p>
+            </header>
+            <div class="empty-state">
+                <div class="loading-spinner"></div>
+                <p style="margin-top: 20px;">Loading...</p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { sdk } from 'https://esm.sh/@farcaster/miniapp-sdk';
+        import { createConfig, connect, writeContract, readContract, getAccount, waitForTransactionReceipt, watchAccount, http } from 'https://esm.sh/@wagmi/core';
+        import { base } from 'https://esm.sh/@wagmi/core/chains';
+        import { farcasterMiniApp } from 'https://esm.sh/@farcaster/miniapp-wagmi-connector';
+        
+        // Configuration - REPLACE THESE VALUES
+        const CONTRACT_ADDRESS = "0xc102f22A1be1dac63aCBe54dd01b97a4c0368C1d";
+        const LIGHTHOUSE_API_KEY = "083393b4.598f672597574529b993db734ba71e36";
+        const NEYNAR_API_KEY = "8BF81B8C-C491-4735-8E1C-FC491FF048D4";
+        const BASE_CHAIN_ID = 8453;
+        const MAX_POSTS = 10;
+        
+        // Contract ABI
+        const CONTRACT_ABI = [
+            "function createPost(string memory _ipfsHash, string memory _caption) external",
+            "function likePost(uint256 _postId) external",
+            "function unlikePost(uint256 _postId) external",
+            "function setUserName(string memory _name) external",
+            "function getAllPostIds() external view returns (uint256[] memory)",
+            "function getPost(uint256 _postId) external view returns (uint256 id, address author, string memory authorName, string memory ipfsHash, string memory caption, uint256 timestamp, uint256 likes)",
+            "function hasUserLiked(uint256 _postId, address _user) external view returns (bool)",
+            "function getTotalPosts() external view returns (uint256)"
+        ];
+
+        // App State
+        let state = {
+            account: null,
+            contract: null,
+            provider: null,
+            posts: [],
+            loading: false,
+            imageFile: null,
+            imagePreview: null,
+            fid: null,
+            userProfile: null,
+            walletConfig: null
+        };
+
+        // Initialize Farcaster SDK
+        async function initializeFarcaster() {
+            try {
+                await sdk.actions.ready({ disableNativeGestures: true });
+                console.log('✅ Farcaster SDK ready');
+                
+                const context = await sdk.context;
+                if (context?.user?.fid) {
+                    state.fid = context.user.fid;
+                    await fetchFarcasterProfile();
+                }
+                
+                await initializeWallet();
+                return true;
+            } catch (err) {
+                console.log('⚠️ SDK not available:', err);
+                renderSetupWarning();
+                return false;
+            }
+        }
+
+        // Fetch Farcaster Profile
+        async function fetchFarcasterProfile() {
+            try {
+                if (!state.fid || NEYNAR_API_KEY === "YOUR_NEYNAR_API_KEY_HERE") return;
+                
+                const response = await fetch(
+                    `https://api.neynar.com/v2/farcaster/user/bulk?fids=${state.fid}`,
+                    {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'api_key': NEYNAR_API_KEY
+                        }
+                    }
+                );
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.users && data.users.length > 0) {
+                        state.userProfile = data.users[0];
+                        console.log('✅ Profile loaded:', state.userProfile);
+                    }
+                }
+            } catch (error) {
+                console.log('⚠️ Failed to fetch profile:', error);
+            }
+        }
+
+        // Initialize Wallet
+        async function initializeWallet() {
+            try {
+                console.log('🔄 Initializing wallet...');
+                
+                state.walletConfig = createConfig({
+                    chains: [base],
+                    connectors: [farcasterMiniApp()],
+                    transports: {
+                        [base.id]: http('https://mainnet.base.org')
+                    }
+                });
+
+                watchAccount(state.walletConfig, {
+                    onChange: (account) => {
+                        updateWalletConnection(account);
+                    }
+                });
+
+                const account = getAccount(state.walletConfig);
+                
+                if (account.isConnected) {
+                    updateWalletConnection(account);
+                } else {
+                    try {
+                        await connect(state.walletConfig, {
+                            connector: farcasterMiniApp()
+                        });
+                        const newAccount = getAccount(state.walletConfig);
+                        updateWalletConnection(newAccount);
+                    } catch (error) {
+                        console.log('⚠️ Auto-connect failed:', error);
+                    }
+                }
+            } catch (error) {
+                console.error('❌ Failed to initialize wallet:', error);
+            }
+        }
+
+        function updateWalletConnection(account) {
+            if (account.isConnected && account.address) {
+                state.account = account.address;
+                state.provider = new ethers.providers.Web3Provider(window.ethereum);
+                const signer = state.provider.getSigner();
+                state.contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+                console.log('✅ Wallet connected:', state.account);
+                loadPosts().then(() => renderApp());
+            } else {
+                state.account = null;
+                renderConnectWallet();
+            }
+        }
+
+        // Load posts from blockchain
+        async function loadPosts() {
+            try {
+                if (!state.walletConfig) return;
+                
+                const postIds = await readContract(state.walletConfig, {
+                    address: CONTRACT_ADDRESS,
+                    abi: CONTRACT_ABI,
+                    functionName: 'getAllPostIds',
+                    chainId: BASE_CHAIN_ID
+                });
+                
+                const posts = [];
+
+                for (let id of postIds) {
+                    const postData = await readContract(state.walletConfig, {
+                        address: CONTRACT_ADDRESS,
+                        abi: CONTRACT_ABI,
+                        functionName: 'getPost',
+                        args: [id],
+                        chainId: BASE_CHAIN_ID
+                    });
+                    
+                    const hasLiked = state.account ? await readContract(state.walletConfig, {
+                        address: CONTRACT_ADDRESS,
+                        abi: CONTRACT_ABI,
+                        functionName: 'hasUserLiked',
+                        args: [id, state.account],
+                        chainId: BASE_CHAIN_ID
+                    }) : false;
+
+                    posts.push({
+                        id: postData.id.toString(),
+                        author: postData.author,
+                        authorName: postData.authorName,
+                        ipfsHash: postData.ipfsHash,
+                        caption: postData.caption,
+                        timestamp: new Date(Number(postData.timestamp) * 1000),
+                        likes: Number(postData.likes),
+                        hasLiked: hasLiked
+                    });
+                }
+
+                state.posts = posts.reverse();
+            } catch (err) {
+                console.error('Error loading posts:', err);
+            }
+        }
+
+        // Upload to Lighthouse IPFS
+        async function uploadToLighthouse(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const response = await fetch('https://node.lighthouse.storage/api/v0/add', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${LIGHTHOUSE_API_KEY}`
+                },
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to upload to IPFS');
+            }
+
+            const data = await response.json();
+            return data.Hash;
+        }
+
+        // Handle file selection
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                if (file.size > 10 * 1024 * 1024) {
+                    alert('Image must be less than 10MB');
+                    return;
+                }
+                state.imageFile = file;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    state.imagePreview = e.target.result;
+                    renderApp();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Create post
+        async function createPost() {
+            if (!state.imageFile) {
+                alert('Please select an image');
+                return;
+            }
+
+            if (state.posts.length >= MAX_POSTS) {
+                alert('Maximum post limit reached (10 posts)');
+                return;
+            }
+
+            try {
+                state.loading = true;
+                renderApp();
+
+                // Upload to IPFS
+                const ipfsHash = await uploadToLighthouse(state.imageFile);
+                console.log('Uploaded to IPFS:', ipfsHash);
+
+                // Get caption
+                const caption = document.getElementById('caption-input').value;
+
+                // Create post on blockchain
+                const hash = await writeContract(state.walletConfig, {
+                    address: CONTRACT_ADDRESS,
+                    abi: CONTRACT_ABI,
+                    functionName: 'createPost',
+                    args: [ipfsHash, caption],
+                    chainId: BASE_CHAIN_ID
+                });
+
+                await waitForTransactionReceipt(state.walletConfig, {
+                    hash: hash,
+                    chainId: BASE_CHAIN_ID
+                });
+
+                // Reset
+                state.imageFile = null;
+                state.imagePreview = null;
+                state.loading = false;
+
+                // Reload
+                await loadPosts();
+                renderApp();
+                
+                alert('Post created successfully! 🎉');
+            } catch (err) {
+                console.error('Error creating post:', err);
+                state.loading = false;
+                renderApp();
+                alert('Failed to create post: ' + err.message);
+            }
+        }
+
+        // Like/Unlike post
+        async function toggleLike(postId, hasLiked) {
+            try {
+                const hash = hasLiked 
+                    ? await writeContract(state.walletConfig, {
+                        address: CONTRACT_ADDRESS,
+                        abi: CONTRACT_ABI,
+                        functionName: 'unlikePost',
+                        args: [postId],
+                        chainId: BASE_CHAIN_ID
+                    })
+                    : await writeContract(state.walletConfig, {
+                        address: CONTRACT_ADDRESS,
+                        abi: CONTRACT_ABI,
+                        functionName: 'likePost',
+                        args: [postId],
+                        chainId: BASE_CHAIN_ID
+                    });
+                    
+                await waitForTransactionReceipt(state.walletConfig, {
+                    hash: hash,
+                    chainId: BASE_CHAIN_ID
+                });
+                
+                await loadPosts();
+                renderApp();
+            } catch (err) {
+                console.error('Error toggling like:', err);
+            }
+        }
+
+        // Share to Farcaster
+        async function shareToFarcaster(postId, imageUrl) {
+            try {
+                const shareText = `Check out my post on Face-caster! 📸\n\nDecentralized social media on Base.`;
+                const encodedText = encodeURIComponent(shareText);
+                const encodedImage = encodeURIComponent(imageUrl);
+                const frameUrl = encodeURIComponent('https://face-caster.vercel.app');
+                
+                const castUrl = `https://warpcast.com/~/compose?text=${encodedText}&embeds[]=${encodedImage}&embeds[]=${frameUrl}`;
+                
+                if (sdk?.actions?.openUrl) {
+                    await sdk.actions.openUrl(castUrl);
+                } else {
+                    window.open(castUrl, '_blank');
+                }
+            } catch (error) {
+                console.error('Share error:', error);
+            }
+        }
+
+        // Get image URL
+        function getImageUrl(ipfsHash) {
+            return `https://gateway.lighthouse.storage/ipfs/${ipfsHash}`;
+        }
+
+        // Render Setup Warning
+        function renderSetupWarning() {
+            document.getElementById('root').innerHTML = `
+                <div class="app-container">
+                    <header class="header">
+                        <h1>Face-caster</h1>
+                        <p>Decentralized Real Face Social Network</p>
+                    </header>
+                    <div class="warning-message">
+                        <strong>⚠️ Setup Required</strong>
+                        <p>Please configure the following in the HTML file:</p>
+                        <ol style="margin: 10px 0 10px 20px; text-align: left;">
+                            <li>Deploy the smart contract to Base blockchain</li>
+                            <li>Get a Lighthouse API key from files.lighthouse.storage</li>
+                            <li>Get a Neynar API key from neynar.com</li>
+                            <li>Update CONTRACT_ADDRESS, LIGHTHOUSE_API_KEY, and NEYNAR_API_KEY</li>
+                        </ol>
+                        <p style="margin-top: 10px;">See README.md for detailed instructions</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Render Connect Wallet Screen
+        function renderConnectWallet() {
+            document.getElementById('root').innerHTML = `
+                <div class="app-container">
+                    <header class="header">
+                        <h1>Face-caster</h1>
+                        <p>Decentralized real face social network</p>
+                        <p style="font-size: 0.85rem; margin-top: 12px; color: var(--accent);">
+                            Powered by Base + IPFS + Farcaster
+                        </p>
+                    </header>
+                    <div class="connect-wallet-section">
+                        <h2>Connect Wallet</h2>
+                        <p style="margin: 20px 0; color: var(--text-secondary);">
+                            Connect your wallet to start sharing
+                        </p>
+                        <button class="post-button" onclick="window.location.reload()">
+                            Connect Wallet
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Render App
+        function renderApp() {
+            const hasImage = state.imagePreview ? 'has-image' : '';
+            
+            let profileHTML = '';
+            if (state.userProfile) {
+                const avatar = state.userProfile.pfp_url 
+                    ? `<img src="${state.userProfile.pfp_url}" alt="Profile">`
+                    : state.userProfile.display_name.charAt(0).toUpperCase();
+                    
+                profileHTML = `
+                    <div class="profile-card" style="display: block;">
+                        <div class="profile-content">
+                            <div class="profile-avatar">${avatar}</div>
+                            <div class="profile-info">
+                                <div class="profile-name">${state.userProfile.display_name || state.userProfile.username}</div>
+                                <div class="profile-fid">FID: ${state.fid}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('root').innerHTML = `
+                <div class="app-container">
+                    <header class="header">
+                        <h1>Face-caster</h1>
+                        <p>Connected: ${state.account.slice(0, 6)}...${state.account.slice(-4)}</p>
+                        <div class="post-limit-indicator">
+                            <span class="dot"></span>
+                            <span>${state.posts.length} / ${MAX_POSTS} posts</span>
+                        </div>
+                    </header>
+
+                    ${profileHTML}
+
+                    <section class="create-post-section">
+                        <h2>Create Post</h2>
+                        
+                        <div class="image-upload-area ${hasImage}" onclick="${state.imagePreview ? '' : "document.getElementById('file-input').click()"}">
+                            ${state.imagePreview 
+                                ? `<img src="${state.imagePreview}" class="image-preview" />` 
+                                : `<div class="upload-prompt">
+                                    <strong>Click to upload</strong> your real photo<br />
+                                    <small>Will be stored on IPFS (max 10MB)</small>
+                                   </div>`
+                            }
+                        </div>
+                        <input type="file" id="file-input" accept="image/*" style="display: none;" onchange="handleFileSelect(event)" />
+                        
+                        ${state.imagePreview ? `
+                            <button class="post-button" style="background: var(--bg-secondary); color: var(--text-secondary); margin-bottom: 16px; padding: 8px 16px; font-size: 0.85rem;" onclick="state.imagePreview = null; state.imageFile = null; renderApp();">
+                                Change Image
+                            </button>
+                        ` : ''}
+
+                        <textarea id="caption-input" class="caption-input" placeholder="Write a caption..." ${state.loading ? 'disabled' : ''}></textarea>
+
+                        <button class="post-button" onclick="createPost()" ${!state.imageFile || state.posts.length >= MAX_POSTS || state.loading ? 'disabled' : ''}>
+                            ${state.loading ? '⏳ Creating Post...' : '💥 Post to Blockchain'}
+                        </button>
+                    </section>
+
+                    <div class="feed">
+                        ${state.posts.length === 0 ? `
+                            <div class="empty-state">
+                                <h3>No posts yet</h3>
+                                <p>Be the first to share your authentic moment!</p>
+                            </div>
+                        ` : state.posts.map(post => `
+                            <article class="post-card">
+                                <div class="post-header">
+                                    <div class="post-avatar">${post.authorName[0]}</div>
+                                    <div class="post-user-info">
+                                        <h3>${post.authorName}</h3>
+                                        <div class="post-time">${post.timestamp.toLocaleString()}</div>
+                                        <div class="post-time" style="font-size: 0.75rem;">
+                                            ${post.author.slice(0, 6)}...${post.author.slice(-4)}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <img src="${getImageUrl(post.ipfsHash)}" alt="Post" class="post-image" />
+
+                                <div class="post-content">
+                                    ${post.caption ? `<p class="post-caption">${post.caption}</p>` : ''}
+
+                                    <div class="post-actions">
+                                        <button class="action-button ${post.hasLiked ? 'liked' : ''}" onclick="toggleLike('${post.id}', ${post.hasLiked})">
+                                            <span>${post.hasLiked ? '♥' : '♡'}</span>
+                                            <span>${post.likes} ${post.likes === 1 ? 'like' : 'likes'}</span>
+                                        </button>
+                                        <button class="action-button" onclick="shareToFarcaster('${post.id}', '${getImageUrl(post.ipfsHash)}')">
+                                            <span>🔗</span>
+                                            <span>Share</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </article>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Make functions global
+        window.handleFileSelect = handleFileSelect;
+        window.createPost = createPost;
+        window.toggleLike = toggleLike;
+        window.renderApp = renderApp;
+        window.shareToFarcaster = shareToFarcaster;
+        window.state = state;
+
+        // Initialize
+        (async () => {
+            try {
+                console.log('🚀 Initializing Face-caster...');
+                
+                if (CONTRACT_ADDRESS === "YOUR_CONTRACT_ADDRESS_HERE") {
+                    renderSetupWarning();
+                    return;
+                }
+                
+                const isFarcaster = await initializeFarcaster();
+                
+                if (sdk?.actions?.addMiniApp) {
+                    await sdk.actions.addMiniApp();
+                }
+                
+                console.log('✅ App initialization complete');
+            } catch (err) {
+                console.error("❌ Initialization error:", err);
+                renderSetupWarning();
+            }
+        })();
+
+        // Listen for account changes
+        if (window.ethereum) {
+            window.ethereum.on('accountsChanged', (accounts) => {
+                if (accounts.length > 0) {
+                    window.location.reload();
+                }
+            });
+        }
+    </script>
+</body>
+</html>
