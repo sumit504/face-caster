@@ -560,8 +560,8 @@
         
         // Configuration - REPLACE THESE VALUES
         const CONTRACT_ADDRESS = "0xc102f22A1be1dac63aCBe54dd01b97a4c0368C1d";
-        const LIGHTHOUSE_API_KEY = "083393b4.598f672597574529b993db734ba71e36";
-        const NEYNAR_API_KEY = "8BF81B8C-C491-4735-8E1C-FC491FF048D4";
+        const LIGHTHOUSE_API_KEY = "YOUR_LIGHTHOUSE_API_KEY_HERE";
+        const NEYNAR_API_KEY = "YOUR_NEYNAR_API_KEY_HERE";
         const BASE_CHAIN_ID = 8453;
         const MAX_POSTS = 10;
         
@@ -615,7 +615,7 @@
         // Fetch Farcaster Profile
         async function fetchFarcasterProfile() {
             try {
-                if (!state.fid || NEYNAR_API_KEY === "YOUR_NEYNAR_API_KEY_HERE") return;
+                if (!state.fid || !NEYNAR_API_KEY) return;
                 
                 const response = await fetch(
                     `https://api.neynar.com/v2/farcaster/user/bulk?fids=${state.fid}`,
@@ -1057,7 +1057,7 @@
             try {
                 console.log('🚀 Initializing Face-caster...');
                 
-                if (CONTRACT_ADDRESS === "YOUR_CONTRACT_ADDRESS_HERE") {
+                if (!CONTRACT_ADDRESS) {
                     renderSetupWarning();
                     return;
                 }
