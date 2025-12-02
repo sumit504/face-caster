@@ -567,16 +567,78 @@
         const BASE_CHAIN_ID = 8453;
         const MAX_POSTS = 10;
         
-        // Contract ABI
+        // Contract ABI - Proper JSON format for wagmi/viem
         const CONTRACT_ABI = [
-            "function createPost(string memory _ipfsHash, string memory _caption) external",
-            "function likePost(uint256 _postId) external",
-            "function unlikePost(uint256 _postId) external",
-            "function setUserName(string memory _name) external",
-            "function getAllPostIds() external view returns (uint256[] memory)",
-            "function getPost(uint256 _postId) external view returns (uint256 id, address author, string memory authorName, string memory ipfsHash, string memory caption, uint256 timestamp, uint256 likes)",
-            "function hasUserLiked(uint256 _postId, address _user) external view returns (bool)",
-            "function getTotalPosts() external view returns (uint256)"
+            {
+                "inputs": [
+                    {"internalType": "string", "name": "_ipfsHash", "type": "string"},
+                    {"internalType": "string", "name": "_caption", "type": "string"}
+                ],
+                "name": "createPost",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [{"internalType": "uint256", "name": "_postId", "type": "uint256"}],
+                "name": "likePost",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [{"internalType": "uint256", "name": "_postId", "type": "uint256"}],
+                "name": "unlikePost",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [{"internalType": "string", "name": "_name", "type": "string"}],
+                "name": "setUserName",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "getAllPostIds",
+                "outputs": [{"internalType": "uint256[]", "name": "", "type": "uint256[]"}],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [{"internalType": "uint256", "name": "_postId", "type": "uint256"}],
+                "name": "getPost",
+                "outputs": [
+                    {"internalType": "uint256", "name": "id", "type": "uint256"},
+                    {"internalType": "address", "name": "author", "type": "address"},
+                    {"internalType": "string", "name": "authorName", "type": "string"},
+                    {"internalType": "string", "name": "ipfsHash", "type": "string"},
+                    {"internalType": "string", "name": "caption", "type": "string"},
+                    {"internalType": "uint256", "name": "timestamp", "type": "uint256"},
+                    {"internalType": "uint256", "name": "likes", "type": "uint256"}
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {"internalType": "uint256", "name": "_postId", "type": "uint256"},
+                    {"internalType": "address", "name": "_user", "type": "address"}
+                ],
+                "name": "hasUserLiked",
+                "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "getTotalPosts",
+                "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+                "stateMutability": "view",
+                "type": "function"
+            }
         ];
 
         // App State
