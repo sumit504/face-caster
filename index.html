@@ -753,7 +753,11 @@
                     const signer = state.provider.getSigner();
                     state.contract = new window.ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
                     console.log('✅ Wallet connected:', state.account);
-                    loadPosts().then(() => renderApp());
+                    
+                    // Test contract connection
+                    testContractConnection().then(() => {
+                        loadPosts().then(() => renderApp());
+                    });
                 } else {
                     console.error('❌ Ethers.js not available');
                     renderSetupWarning();
@@ -764,10 +768,56 @@
             }
         }
 
+        // Test contract connection and data format
+        async function testContractConnection() {
+            try {
+                console.log('🔍 Testing contract connection...');
+                
+                const totalPosts = await readContract(state.walletConfig, {
+                    address: CONTRACT_ADDRESS,
+                    abi: CONTRACT_ABI,
+                    functionName: 'getTotalPosts',
+                    chainId: BASE_CHAIN_ID
+                });
+                
+                console.log('Total posts in contract:', totalPosts.toString());
+                
+                // If there are posts, test reading one
+                if (Number(totalPosts) > 0) {
+                    const postIds = await readContract(state.walletConfig, {
+                        address: CONTRACT_ADDRESS,
+                        abi: CONTRACT_ABI,
+                        functionName: 'getAllPostIds',
+                        chainId: BASE_CHAIN_ID
+                    });
+                    
+                    console.log('Sample post ID:', postIds[0]);
+                    
+                    const samplePost = await readContract(state.walletConfig, {
+                        address: CONTRACT_ADDRESS,
+                        abi: CONTRACT_ABI,
+                        functionName: 'getPost',
+                        args: [postIds[0]],
+                        chainId: BASE_CHAIN_ID
+                    });
+                    
+                    console.log('Sample post data structure:', samplePost);
+                    console.log('Is array?', Array.isArray(samplePost));
+                    console.log('Keys:', Object.keys(samplePost));
+                }
+                
+                console.log('✅ Contract connection test complete');
+            } catch (error) {
+                console.error('⚠️ Contract test error:', error);
+            }
+        }
+
         // Load posts from blockchain
         async function loadPosts() {
             try {
                 if (!state.walletConfig) return;
+                
+                console.log('📥 Loading posts from blockchain...');
                 
                 const postIds = await readContract(state.walletConfig, {
                     address: CONTRACT_ADDRESS,
@@ -776,40 +826,53 @@
                     chainId: BASE_CHAIN_ID
                 });
                 
+                console.log('Post IDs:', postIds);
                 const posts = [];
 
                 for (let id of postIds) {
-                    const postData = await readContract(state.walletConfig, {
-                        address: CONTRACT_ADDRESS,
-                        abi: CONTRACT_ABI,
-                        functionName: 'getPost',
-                        args: [id],
-                        chainId: BASE_CHAIN_ID
-                    });
-                    
-                    const hasLiked = state.account ? await readContract(state.walletConfig, {
-                        address: CONTRACT_ADDRESS,
-                        abi: CONTRACT_ABI,
-                        functionName: 'hasUserLiked',
-                        args: [id, state.account],
-                        chainId: BASE_CHAIN_ID
-                    }) : false;
+                    try {
+                        const postData = await readContract(state.walletConfig, {
+                            address: CONTRACT_ADDRESS,
+                            abi: CONTRACT_ABI,
+                            functionName: 'getPost',
+                            args: [id],
+                            chainId: BASE_CHAIN_ID
+                        });
+                        
+                        console.log('Post data for ID', id, ':', postData);
+                        
+                        const hasLiked = state.account ? await readContract(state.walletConfig, {
+                            address: CONTRACT_ADDRESS,
+                            abi: CONTRACT_ABI,
+                            functionName: 'hasUserLiked',
+                            args: [id, state.account],
+                            chainId: BASE_CHAIN_ID
+                        }) : false;
 
-                    posts.push({
-                        id: postData.id.toString(),
-                        author: postData.author,
-                        authorName: postData.authorName,
-                        ipfsHash: postData.ipfsHash,
-                        caption: postData.caption,
-                        timestamp: new Date(Number(postData.timestamp) * 1000),
-                        likes: Number(postData.likes),
-                        hasLiked: hasLiked
-                    });
+                        // Handle both array and object response formats
+                        posts.push({
+                            id: (postData[0] || postData.id)?.toString() || id.toString(),
+                            author: postData[1] || postData.author || '',
+                            authorName: postData[2] || postData.authorName || 'Anonymous',
+                            ipfsHash: postData[3] || postData.ipfsHash || '',
+                            caption: postData[4] || postData.caption || '',
+                            timestamp: new Date((Number(postData[5] || postData.timestamp || 0)) * 1000),
+                            likes: Number(postData[6] || postData.likes || 0),
+                            hasLiked: hasLiked
+                        });
+                    } catch (postError) {
+                        console.error(`Error loading post ${id}:`, postError);
+                        // Skip this post and continue
+                        continue;
+                    }
                 }
 
                 state.posts = posts.reverse();
+                console.log('✅ Loaded', posts.length, 'posts');
             } catch (err) {
                 console.error('Error loading posts:', err);
+                // Don't throw error, just show empty state
+                state.posts = [];
             }
         }
 
@@ -999,7 +1062,7 @@
         // Get image URL from Pinata gateway
         function getImageUrl(ipfsHash) {
             // Using Pinata's dedicated gateway (faster and more reliable)
-            return `https://gateway.pinata.cloud/ipfs/${ipfsHash}`;
+            return `https://monocats.mypinata.cloud/ipfs/${ipfsHash}`;
         }
 
         // Render Setup Warning
