@@ -16,28 +16,31 @@
           "name":"Face-caster",
           "url":"https://face-caster.vercel.app",
           "splashImageUrl":"https://face-caster.vercel.app/splash.png",
-          "splashBackgroundColor":"#00ff88"
+          "splashBackgroundColor":"#FF6B6B"
         }
       }
     }' />
 
-    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Crimson+Pro:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     
     <!-- Ethers.js from CDN -->
     <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
     
     <style>
         :root {
-            --bg-primary: #0a0a0a;
-            --bg-secondary: #1a1a1a;
-            --bg-card: #151515;
-            --accent: #00ff88;
-            --accent-dim: #00cc6a;
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2a2a2a;
+            --bg-card: #252525;
+            --accent: #FF6B6B;
+            --accent-orange: #FFA500;
+            --accent-yellow: #FFD700;
+            --accent-gradient: linear-gradient(135deg, #FF6B6B 0%, #FFA500 50%, #FFD700 100%);
             --text-primary: #ffffff;
-            --text-secondary: #a0a0a0;
-            --border: #2a2a2a;
+            --text-secondary: #b0b0b0;
+            --border: #3a3a3a;
             --error: #ff4444;
             --warning: #ff8800;
+            --shadow: rgba(255, 107, 107, 0.3);
         }
 
         * {
@@ -47,7 +50,7 @@
         }
 
         body {
-            font-family: 'Crimson Pro', serif;
+            font-family: 'Poppins', sans-serif;
             background: var(--bg-primary);
             color: var(--text-primary);
             line-height: 1.6;
@@ -69,104 +72,89 @@
 
         .header {
             text-align: center;
-            padding: 40px 0 60px;
-            border-bottom: 2px solid var(--accent);
-            margin-bottom: 40px;
+            padding: 30px 0 40px;
+            margin-bottom: 30px;
             position: relative;
-            overflow: hidden;
-        }
-
-        .header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
-            opacity: 0.03;
-            animation: pulse 8s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 0.03; }
-            50% { transform: scale(1.2); opacity: 0.05; }
+            background: var(--accent-gradient);
+            margin: -20px -20px 30px -20px;
+            padding: 40px 20px;
+            border-radius: 0 0 30px 30px;
+            box-shadow: 0 10px 30px var(--shadow);
         }
 
         .header h1 {
-            font-family: 'Space Mono', monospace;
-            font-size: 3rem;
-            font-weight: 700;
-            letter-spacing: -2px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 2.8rem;
+            font-weight: 800;
+            letter-spacing: -1px;
             margin-bottom: 8px;
-            background: linear-gradient(135deg, var(--accent), var(--text-primary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            position: relative;
+            color: #ffffff;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
 
         .header p {
-            color: var(--text-secondary);
-            font-size: 1rem;
-            font-weight: 300;
-            position: relative;
+            color: rgba(255, 255, 255, 0.95);
+            font-size: 0.95rem;
+            font-weight: 500;
         }
 
         .search-section {
             background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
+            border: 2px solid var(--border);
+            border-radius: 20px;
             padding: 20px;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
 
         .search-input-container {
             display: flex;
             gap: 12px;
-            margin-bottom: 16px;
         }
 
         .search-input {
             flex: 1;
-            padding: 12px;
+            padding: 14px 18px;
             background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: 8px;
+            border: 2px solid var(--border);
+            border-radius: 25px;
             color: var(--text-primary);
-            font-family: 'Crimson Pro', serif;
-            font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
         }
 
         .search-input:focus {
             outline: none;
             border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
         }
 
         .search-button {
-            background: var(--accent);
-            color: var(--bg-primary);
+            background: var(--accent-gradient);
+            color: white;
             border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-family: 'Space Mono', monospace;
+            padding: 14px 28px;
+            border-radius: 25px;
+            font-family: 'Poppins', sans-serif;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.3s ease;
+            box-shadow: 0 4px 15px var(--shadow);
         }
 
         .search-button:hover {
-            background: var(--accent-dim);
             transform: translateY(-2px);
+            box-shadow: 0 6px 20px var(--shadow);
         }
 
         .profile-card {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
-            border: 2px solid rgba(0, 255, 136, 0.3);
-            border-radius: 16px;
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 20px;
             padding: 20px;
-            margin-bottom: 30px;
-            backdrop-filter: blur(20px);
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             display: none;
         }
 
@@ -177,20 +165,20 @@
         }
 
         .profile-avatar {
-            width: 64px;
-            height: 64px;
+            width: 70px;
+            height: 70px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--accent), var(--accent-dim));
+            background: var(--accent-gradient);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 32px;
             font-weight: 800;
-            color: var(--bg-primary);
+            color: white;
             flex-shrink: 0;
             overflow: hidden;
             border: 3px solid var(--accent);
-            box-shadow: 0 4px 16px rgba(0, 255, 136, 0.3);
+            box-shadow: 0 4px 15px var(--shadow);
         }
 
         .profile-avatar img {
@@ -215,20 +203,20 @@
             color: var(--accent);
             font-size: 0.9rem;
             font-weight: 600;
-            font-family: 'Space Mono', monospace;
         }
 
         .post-limit-indicator {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: var(--bg-card);
-            padding: 8px 16px;
-            border-radius: 20px;
+            background: rgba(255, 107, 107, 0.15);
+            padding: 10px 20px;
+            border-radius: 25px;
             margin-top: 16px;
-            border: 1px solid var(--border);
-            font-family: 'Space Mono', monospace;
+            border: 2px solid var(--accent);
+            font-family: 'Poppins', sans-serif;
             font-size: 0.85rem;
+            font-weight: 600;
         }
 
         .post-limit-indicator .dot {
@@ -248,41 +236,44 @@
             text-align: center;
             padding: 60px 20px;
             background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
 
         .connect-wallet-section h2 {
-            font-family: 'Space Mono', monospace;
+            font-family: 'Poppins', sans-serif;
             font-size: 1.8rem;
             margin-bottom: 16px;
-            color: var(--accent);
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .create-post-section {
             background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
+            border: 2px solid var(--border);
+            border-radius: 20px;
             padding: 24px;
-            margin-bottom: 40px;
-            animation: slideDown 0.4s ease-out 0.2s both;
-        }
-
-        @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
 
         .create-post-section h2 {
-            font-family: 'Space Mono', monospace;
-            font-size: 1.2rem;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.3rem;
             margin-bottom: 20px;
-            color: var(--accent);
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
         }
 
         .image-upload-area {
-            border: 2px dashed var(--border);
-            border-radius: 8px;
+            border: 3px dashed var(--border);
+            border-radius: 15px;
             padding: 40px;
             text-align: center;
             cursor: pointer;
@@ -293,7 +284,8 @@
 
         .image-upload-area:hover {
             border-color: var(--accent);
-            background: var(--bg-primary);
+            background: rgba(255, 107, 107, 0.05);
+            transform: translateY(-2px);
         }
 
         .image-upload-area.has-image {
@@ -305,116 +297,124 @@
             width: 100%;
             max-height: 400px;
             object-fit: cover;
-            border-radius: 6px;
+            border-radius: 12px;
             display: block;
         }
 
         .upload-prompt {
             color: var(--text-secondary);
-            font-size: 0.95rem;
+            font-size: 1rem;
         }
 
         .upload-prompt strong {
-            color: var(--accent);
-            font-family: 'Space Mono', monospace;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
         }
 
         .caption-input {
             width: 100%;
-            padding: 12px;
+            padding: 14px 18px;
             background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: 8px;
+            border: 2px solid var(--border);
+            border-radius: 15px;
             color: var(--text-primary);
-            font-family: 'Crimson Pro', serif;
-            font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.95rem;
             margin-bottom: 16px;
             resize: vertical;
-            min-height: 80px;
+            min-height: 100px;
+            transition: all 0.3s ease;
         }
 
         .caption-input:focus {
             outline: none;
             border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
         }
 
         .post-button {
-            background: var(--accent);
-            color: var(--bg-primary);
+            background: var(--accent-gradient);
+            color: white;
             border: none;
-            padding: 12px 32px;
-            border-radius: 8px;
-            font-family: 'Space Mono', monospace;
+            padding: 16px 36px;
+            border-radius: 25px;
+            font-family: 'Poppins', sans-serif;
             font-weight: 700;
-            font-size: 0.95rem;
+            font-size: 1rem;
             cursor: pointer;
             transition: all 0.3s ease;
             text-transform: uppercase;
             letter-spacing: 1px;
+            box-shadow: 0 4px 15px var(--shadow);
+            width: 100%;
         }
 
         .post-button:hover:not(:disabled) {
-            background: var(--accent-dim);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 255, 136, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px var(--shadow);
         }
 
         .post-button:disabled {
-            background: var(--border);
+            background: var(--bg-secondary);
             cursor: not-allowed;
             opacity: 0.5;
+            box-shadow: none;
         }
 
         .error-message {
             background: rgba(255, 68, 68, 0.1);
-            border: 1px solid var(--error);
+            border: 2px solid var(--error);
             color: var(--error);
-            padding: 12px;
-            border-radius: 8px;
+            padding: 14px;
+            border-radius: 12px;
             margin-top: 16px;
-            font-family: 'Space Mono', monospace;
-            font-size: 0.85rem;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
         }
 
         .success-message {
-            background: rgba(0, 255, 136, 0.1);
-            border: 1px solid var(--accent);
+            background: rgba(255, 107, 107, 0.1);
+            border: 2px solid var(--accent);
             color: var(--accent);
-            padding: 12px;
-            border-radius: 8px;
+            padding: 14px;
+            border-radius: 12px;
             margin-top: 16px;
-            font-family: 'Space Mono', monospace;
-            font-size: 0.85rem;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
         }
 
         .warning-message {
             background: rgba(255, 136, 0, 0.1);
-            border: 1px solid var(--warning);
+            border: 2px solid var(--warning);
             color: var(--warning);
             padding: 16px;
-            border-radius: 8px;
+            border-radius: 12px;
             margin-bottom: 20px;
-            font-family: 'Space Mono', monospace;
-            font-size: 0.85rem;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
         }
 
         .feed {
             display: flex;
             flex-direction: column;
-            gap: 24px;
+            gap: 20px;
         }
 
         .post-card {
             background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
+            border: 2px solid var(--border);
+            border-radius: 20px;
             overflow: hidden;
-            animation: slideUp 0.5s ease-out both;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
         }
 
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
+        .post-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
         }
 
         .post-header {
@@ -422,27 +422,33 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            border-bottom: 1px solid var(--border);
+            background: rgba(255, 107, 107, 0.05);
+            border-bottom: 2px solid var(--border);
+        }
+
+        .post-header-clickable {
             cursor: pointer;
             transition: background 0.2s ease;
         }
 
-        .post-header:hover {
-            background: var(--bg-secondary);
+        .post-header-clickable:hover {
+            background: rgba(255, 107, 107, 0.1);
         }
 
         .post-avatar {
-            width: 40px;
-            height: 40px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--accent), var(--accent-dim));
+            background: var(--accent-gradient);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: 'Space Mono', monospace;
+            font-family: 'Poppins', sans-serif;
             font-weight: 700;
-            color: var(--bg-primary);
+            color: white;
             overflow: hidden;
+            border: 2px solid var(--accent);
+            box-shadow: 0 2px 8px var(--shadow);
         }
 
         .post-avatar img {
@@ -452,15 +458,17 @@
         }
 
         .post-user-info h3 {
-            font-family: 'Space Mono', monospace;
-            font-size: 0.95rem;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
             font-weight: 700;
+            color: var(--text-primary);
         }
 
         .post-time {
             font-size: 0.85rem;
             color: var(--text-secondary);
             margin-top: 2px;
+            font-weight: 500;
         }
 
         .post-image {
@@ -476,43 +484,47 @@
         }
 
         .post-caption {
-            font-size: 1.2rem;
-            font-weight: 700;
-            line-height: 1.6;
-            margin-bottom: 16px;
+            font-size: 1.15rem;
+            font-weight: 600;
+            line-height: 1.5;
+            margin-bottom: 0;
             color: var(--text-primary);
         }
 
         .post-actions {
             display: flex;
-            gap: 20px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid var(--border);
-            margin-bottom: 16px;
+            gap: 16px;
+            padding-top: 16px;
         }
 
         .action-button {
-            background: none;
-            border: none;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
             color: var(--text-secondary);
             cursor: pointer;
             display: flex;
             align-items: center;
             gap: 8px;
-            font-family: 'Space Mono', monospace;
-            font-size: 0.85rem;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
             transition: all 0.2s ease;
-            padding: 8px 12px;
-            border-radius: 6px;
+            padding: 10px 18px;
+            border-radius: 20px;
         }
 
         .action-button:hover {
-            background: var(--bg-secondary);
-            color: var(--text-primary);
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--shadow);
         }
 
         .action-button.liked {
-            color: var(--accent);
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
         }
 
         .empty-state {
@@ -522,16 +534,17 @@
         }
 
         .empty-state h3 {
-            font-family: 'Space Mono', monospace;
+            font-family: 'Poppins', sans-serif;
             font-size: 1.5rem;
             margin-bottom: 12px;
             color: var(--text-primary);
+            font-weight: 700;
         }
 
         .loading-spinner {
             display: inline-block;
-            width: 20px;
-            height: 20px;
+            width: 24px;
+            height: 24px;
             border: 3px solid var(--border);
             border-top-color: var(--accent);
             border-radius: 50%;
@@ -546,25 +559,30 @@
             display: flex;
             gap: 12px;
             margin-bottom: 24px;
-            border-bottom: 2px solid var(--border);
+            background: var(--bg-card);
+            padding: 8px;
+            border-radius: 15px;
+            border: 2px solid var(--border);
         }
 
         .tab {
+            flex: 1;
             padding: 12px 24px;
             background: none;
             border: none;
             color: var(--text-secondary);
-            font-family: 'Space Mono', monospace;
-            font-size: 0.9rem;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            border-bottom: 2px solid transparent;
-            margin-bottom: -2px;
+            border-radius: 10px;
         }
 
         .tab.active {
-            color: var(--accent);
-            border-bottom-color: var(--accent);
+            background: var(--accent-gradient);
+            color: white;
+            box-shadow: 0 4px 12px var(--shadow);
         }
 
         .tab:hover {
@@ -572,9 +590,9 @@
         }
 
         @media (max-width: 640px) {
-            .header h1 { font-size: 2rem; }
+            .header h1 { font-size: 2.2rem; }
             .app-container { padding: 16px; }
-            .create-post-section { padding: 16px; }
+            .create-post-section { padding: 20px; }
             .search-input-container { flex-direction: column; }
         }
     </style>
@@ -583,11 +601,8 @@
     <div id="root">
         <div class="app-container">
             <header class="header">
-                <h1>Face-caster</h1>
+                <h1>🔥 Face-caster</h1>
                 <p>Decentralized real face social network</p>
-                <p style="font-size: 0.85rem; margin-top: 12px; color: var(--accent);">
-                    Powered by Base + Pinata IPFS
-                </p>
             </header>
             <div class="empty-state">
                 <div class="loading-spinner"></div>
@@ -698,7 +713,7 @@
             loading: false,
             imageFile: null,
             imagePreview: null,
-            currentCaption: '', // ADDED: Store caption
+            currentCaption: '',
             fid: null,
             userProfile: null,
             walletConfig: null,
@@ -708,7 +723,7 @@
             isWalletConnected: false
         };
 
-        // Profile cache to avoid re-fetching
+        // Profile cache
         let profileCache = {};
 
         // Initialize Farcaster SDK
@@ -760,7 +775,6 @@
         // Fetch Farcaster profile for any address
         async function fetchProfileByAddress(address) {
             try {
-                // Check cache first
                 if (profileCache[address.toLowerCase()]) {
                     return profileCache[address.toLowerCase()];
                 }
@@ -780,7 +794,6 @@
                     const data = await response.json();
                     if (data[address.toLowerCase()] && data[address.toLowerCase()].length > 0) {
                         const profile = data[address.toLowerCase()][0];
-                        // Cache the profile
                         profileCache[address.toLowerCase()] = profile;
                         console.log('✅ Fetched profile for', address, ':', profile.display_name || profile.username);
                         return profile;
@@ -874,8 +887,6 @@
                             chainId: BASE_CHAIN_ID
                         });
                         
-                        console.log('Post data for ID', id.toString(), ':', postData);
-                        
                         const hasLiked = state.account ? await readContract(state.walletConfig, {
                             address: CONTRACT_ADDRESS,
                             abi: CONTRACT_ABI,
@@ -884,7 +895,6 @@
                             chainId: BASE_CHAIN_ID
                         }) : false;
 
-                        // Fetch Farcaster profile for this user
                         const authorAddress = postData[1] || postData.author || '';
                         const fcProfile = await fetchProfileByAddress(authorAddress);
 
@@ -902,7 +912,6 @@
                         
                         posts.push(post);
                         
-                        // Count posts by current user
                         if (state.account && post.author.toLowerCase() === state.account.toLowerCase()) {
                             userPostCount++;
                         }
@@ -947,9 +956,10 @@
             }
         }
 
-        // View user profile
+        // View user profile - FIXED
         async function viewUserProfile(address) {
             try {
+                console.log('👤 Viewing profile for:', address);
                 state.currentView = 'profile';
                 state.viewingAddress = address;
                 state.loading = true;
@@ -982,7 +992,6 @@
                             chainId: BASE_CHAIN_ID
                         }) : false;
 
-                        // Fetch Farcaster profile for this user
                         const authorAddress = postData[1] || postData.author || '';
                         const fcProfile = await fetchProfileByAddress(authorAddress);
 
@@ -1095,7 +1104,6 @@
             }
 
             try {
-                // FIXED: Save caption from textarea before state changes
                 saveCaptionToState();
                 const caption = state.currentCaption;
                 
@@ -1105,7 +1113,6 @@
                 console.log('Starting IPFS upload with Pinata...');
                 const ipfsHash = await uploadToPinata(state.imageFile);
                 console.log('✅ Uploaded to IPFS:', ipfsHash);
-                console.log('📝 Caption to post:', caption);
 
                 console.log('📝 Creating post on blockchain...');
                 
@@ -1125,13 +1132,11 @@
 
                 console.log('✅ Transaction confirmed!');
 
-                // Reset
                 state.imageFile = null;
                 state.imagePreview = null;
-                state.currentCaption = ''; // FIXED: Clear caption
+                state.currentCaption = '';
                 state.loading = false;
 
-                // Reload
                 await loadPosts();
                 renderApp();
                 
@@ -1219,7 +1224,7 @@
             document.getElementById('root').innerHTML = `
                 <div class="app-container">
                     <header class="header">
-                        <h1>Face-caster</h1>
+                        <h1>🔥 Face-caster</h1>
                         <p>Decentralized Real Face Social Network</p>
                     </header>
                     <div class="warning-message">
@@ -1236,11 +1241,8 @@
             document.getElementById('root').innerHTML = `
                 <div class="app-container">
                     <header class="header">
-                        <h1>Face-caster</h1>
+                        <h1>🔥 Face-caster</h1>
                         <p>Decentralized real face social network</p>
-                        <p style="font-size: 0.85rem; margin-top: 12px; color: var(--accent);">
-                            Powered by Base + IPFS
-                        </p>
                     </header>
                     <div class="connect-wallet-section">
                         <h2>Connecting Wallet...</h2>
@@ -1283,7 +1285,6 @@
                 const profileName = viewingPost?.authorName || 'User';
                 const profilePfp = viewingPost?.authorPfp;
                 
-                // Profile avatar display
                 const profileAvatar = profilePfp 
                     ? `<img src="${profilePfp}" alt="Profile">`
                     : profileName[0];
@@ -1291,7 +1292,7 @@
                 document.getElementById('root').innerHTML = `
                     <div class="app-container">
                         <header class="header">
-                            <h1>Face-caster</h1>
+                            <h1>🔥 Face-caster</h1>
                             <p>Connected: ${state.account.slice(0, 6)}...${state.account.slice(-4)}</p>
                         </header>
 
@@ -1329,27 +1330,24 @@
                                     : post.authorName[0];
                                 
                                 return `
-       <article class="post-card">
-    <div class="post-header" onclick="viewUserProfile('${post.author}')">
-        <div class="post-avatar">${postAvatar}</div>
-        <div class="post-user-info">
-            <h3>${post.authorName}</h3>
-            <div class="post-time">${post.timestamp.toLocaleDateString()} ${post.timestamp.toLocaleTimeString()}</div>
-        </div>
-    </div>
+                                <article class="post-card">
+                                    <div class="post-header">
+                                        <div class="post-avatar">${postAvatar}</div>
+                                        <div class="post-user-info">
+                                            <h3>${post.authorName}</h3>
+                                            <div class="post-time">${post.timestamp.toLocaleDateString()} • ${post.timestamp.toLocaleTimeString()}</div>
+                                        </div>
+                                    </div>
 
-    ${post.caption ? `<div class="post-content" style="padding-bottom: 0;"><p class="post-caption">${post.caption}</p></div>` : ''}
+                                    ${post.caption ? `<div class="post-content" style="padding-bottom: 0;"><p class="post-caption">${post.caption}</p></div>` : ''}
 
-    <img src="${getImageUrl(post.ipfsHash)}" alt="Post" class="post-image" />
+                                    <img src="${getImageUrl(post.ipfsHash)}" alt="Post" class="post-image" />
 
-    <div class="post-content">
-        <div class="post-actions">
-                                        ${post.caption ? `<p class="post-caption">${post.caption}</p>` : ''}
-
+                                    <div class="post-content">
                                         <div class="post-actions">
                                             <button class="action-button ${post.hasLiked ? 'liked' : ''}" onclick="toggleLike('${post.id}', ${post.hasLiked})">
-                                                <span>${post.hasLiked ? '♥' : '♡'}</span>
-                                                <span>${post.likes} ${post.likes === 1 ? 'like' : 'likes'}</span>
+                                                <span>${post.hasLiked ? '❤️' : '🤍'}</span>
+                                                <span>${post.likes}</span>
                                             </button>
                                             <button class="action-button" onclick="shareToFarcaster('${post.id}', '${getImageUrl(post.ipfsHash)}')">
                                                 <span>🔗</span>
@@ -1370,7 +1368,7 @@
             document.getElementById('root').innerHTML = `
                 <div class="app-container">
                     <header class="header">
-                        <h1>Face-caster</h1>
+                        <h1>🔥 Face-caster</h1>
                         <p>Connected: ${state.account.slice(0, 6)}...${state.account.slice(-4)}</p>
                         <div class="post-limit-indicator">
                             <span class="dot"></span>
@@ -1381,7 +1379,7 @@
                     ${profileHTML}
 
                     <section class="search-section">
-                        <h2 style="font-family: 'Space Mono', monospace; font-size: 1.2rem; margin-bottom: 12px; color: var(--accent);">Search Users</h2>
+                        <h2 style="font-family: 'Poppins', sans-serif; font-size: 1.2rem; margin-bottom: 12px; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 700;">Search Users</h2>
                         <div class="search-input-container">
                             <input 
                                 type="text" 
@@ -1410,7 +1408,7 @@
                         <input type="file" id="file-input" accept="image/*" style="display: none;" onchange="handleFileSelect(event)" />
                         
                         ${state.imagePreview ? `
-                            <button class="post-button" style="background: var(--bg-secondary); color: var(--text-secondary); margin-bottom: 16px; padding: 8px 16px; font-size: 0.85rem;" onclick="saveCaptionToState(); state.imagePreview = null; state.imageFile = null; renderApp();">
+                            <button class="post-button" style="background: var(--bg-secondary); color: var(--text-secondary); margin-bottom: 16px; padding: 12px 24px; font-size: 0.85rem; width: auto;" onclick="saveCaptionToState(); state.imagePreview = null; state.imageFile = null; renderApp();">
                                 Change Image
                             </button>
                         ` : ''}
@@ -1418,7 +1416,7 @@
                         <textarea id="caption-input" class="caption-input" placeholder="Write a caption..." ${state.loading ? 'disabled' : ''} oninput="saveCaptionToState()">${state.currentCaption || ''}</textarea>
 
                         <button class="post-button" onclick="createPost()" ${!state.imageFile || userPostCount >= MAX_POSTS || state.loading ? 'disabled' : ''}>
-                            ${state.loading ? '⏳ Uploading & Creating...' : '💥 Post to Blockchain'}
+                            ${state.loading ? '⏳ Posting...' : '🔥 Post to Blockchain'}
                         </button>
                         
                         ${userPostCount >= MAX_POSTS ? `
@@ -1439,30 +1437,29 @@
                                 <p>Be the first to share your authentic moment!</p>
                             </div>
                         ` : state.posts.map(post => {
-                            // Show profile picture if available, otherwise show first letter
                             const postAvatar = post.authorPfp 
                                 ? `<img src="${post.authorPfp}" alt="${post.authorName}">`
                                 : post.authorName[0];
                             
                             return `
-   <article class="post-card">
-    <div class="post-header">
-        <div class="post-avatar">${postAvatar}</div>
-        <div class="post-user-info">
-            <h3>${post.authorName}</h3>
-            <div class="post-time">${post.timestamp.toLocaleDateString()} ${post.timestamp.toLocaleTimeString()}</div>
-        </div>
-    </div>
+                            <article class="post-card">
+                                <div class="post-header post-header-clickable" onclick="event.stopPropagation(); viewUserProfile('${post.author}');">
+                                    <div class="post-avatar">${postAvatar}</div>
+                                    <div class="post-user-info">
+                                        <h3>${post.authorName}</h3>
+                                        <div class="post-time">${post.timestamp.toLocaleDateString()} • ${post.timestamp.toLocaleTimeString()}</div>
+                                    </div>
+                                </div>
 
-    ${post.caption ? `<div class="post-content" style="padding-bottom: 0;"><p class="post-caption">${post.caption}</p></div>` : ''}
+                                ${post.caption ? `<div class="post-content" style="padding-bottom: 0;"><p class="post-caption">${post.caption}</p></div>` : ''}
 
-    <img src="${getImageUrl(post.ipfsHash)}" alt="Post" class="post-image" />
+                                <img src="${getImageUrl(post.ipfsHash)}" alt="Post" class="post-image" />
 
-    <div class="post-content">
-        <div class="post-actions">
+                                <div class="post-content">
+                                    <div class="post-actions">
                                         <button class="action-button ${post.hasLiked ? 'liked' : ''}" onclick="toggleLike('${post.id}', ${post.hasLiked})">
-                                            <span>${post.hasLiked ? '♥' : '♡'}</span>
-                                            <span>${post.likes} ${post.likes === 1 ? 'like' : 'likes'}</span>
+                                            <span>${post.hasLiked ? '❤️' : '🤍'}</span>
+                                            <span>${post.likes}</span>
                                         </button>
                                         <button class="action-button" onclick="shareToFarcaster('${post.id}', '${getImageUrl(post.ipfsHash)}')">
                                             <span>🔗</span>
@@ -1505,7 +1502,6 @@
                     await fetchFarcasterProfile();
                 }
                 
-                // Try to add mini app
                 try {
                     if (sdk?.actions?.addMiniApp) {
                         await sdk.actions.addMiniApp();
