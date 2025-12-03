@@ -442,6 +442,13 @@
             font-family: 'Space Mono', monospace;
             font-weight: 700;
             color: var(--bg-primary);
+            overflow: hidden;
+        }
+
+        .post-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .post-user-info h3 {
@@ -697,6 +704,9 @@
             isWalletConnected: false
         };
 
+        // Profile cache to avoid re-fetching
+        let profileCache = {};
+
         // Initialize Farcaster SDK
         async function initializeFarcaster() {
             try {
@@ -711,7 +721,7 @@
             }
         }
 
-        // Fetch Farcaster Profile
+        // Fetch Farcaster Profile for current user
         async function fetchFarcasterProfile() {
             try {
                 const context = await sdk.context;
@@ -743,7 +753,43 @@
             }
         }
 
-        // Initialize Wallet - FIXED LIKE FID BANGERS
+        // Fetch Farcaster profile for any address - NEW FUNCTION
+        async function fetchProfileByAddress(address) {
+            try {
+                // Check cache first
+                if (profileCache[address.toLowerCase()]) {
+                    return profileCache[address.toLowerCase()];
+                }
+
+                const response = await fetch(
+                    `https://api.neynar.com/v2/farcaster/user/bulk-by-address?addresses=${address}`,
+                    {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'api_key': NEYNAR_API_KEY
+                        }
+                    }
+                );
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data[address.toLowerCase()] && data[address.toLowerCase()].length > 0) {
+                        const profile = data[address.toLowerCase()][0];
+                        // Cache the profile
+                        profileCache[address.toLowerCase()] = profile;
+                        console.log('✅ Fetched profile for', address, ':', profile.display_name || profile.username);
+                        return profile;
+                    }
+                }
+                return null;
+            } catch (error) {
+                console.log('⚠️ Failed to fetch profile for address:', address, error);
+                return null;
+            }
+        }
+
+        // Initialize Wallet
         async function initializeWallet() {
             try {
                 console.log('🔄 Initializing wagmi wallet...');
@@ -796,7 +842,7 @@
             }
         }
 
-        // Load posts from blockchain
+        // Load posts from blockchain - UPDATED TO FETCH PROFILES
         async function loadPosts() {
             try {
                 if (!state.walletConfig) return;
@@ -834,10 +880,15 @@
                             chainId: BASE_CHAIN_ID
                         }) : false;
 
+                        // Fetch Farcaster profile for this user - NEW
+                        const authorAddress = postData[1] || postData.author || '';
+                        const fcProfile = await fetchProfileByAddress(authorAddress);
+
                         const post = {
                             id: (postData[0] || postData.id)?.toString() || id.toString(),
-                            author: postData[1] || postData.author || '',
-                            authorName: postData[2] || postData.authorName || 'Anonymous',
+                            author: authorAddress,
+                            authorName: fcProfile?.display_name || fcProfile?.username || postData[2] || postData.authorName || 'Anonymous',
+                            authorPfp: fcProfile?.pfp_url || null,
                             ipfsHash: postData[3] || postData.ipfsHash || '',
                             caption: postData[4] || postData.caption || '',
                             timestamp: new Date((Number(postData[5] || postData.timestamp || 0)) * 1000),
@@ -892,7 +943,7 @@
             }
         }
 
-        // View user profile
+        // View user profile - UPDATED TO FETCH PROFILES
         async function viewUserProfile(address) {
             try {
                 state.currentView = 'profile';
@@ -927,10 +978,15 @@
                             chainId: BASE_CHAIN_ID
                         }) : false;
 
+                        // Fetch Farcaster profile for this user - NEW
+                        const authorAddress = postData[1] || postData.author || '';
+                        const fcProfile = await fetchProfileByAddress(authorAddress);
+
                         userPosts.push({
                             id: (postData[0] || postData.id)?.toString() || id.toString(),
-                            author: postData[1] || postData.author || '',
-                            authorName: postData[2] || postData.authorName || 'Anonymous',
+                            author: authorAddress,
+                            authorName: fcProfile?.display_name || fcProfile?.username || postData[2] || postData.authorName || 'Anonymous',
+                            authorPfp: fcProfile?.pfp_url || null,
                             ipfsHash: postData[3] || postData.ipfsHash || '',
                             caption: postData[4] || postData.caption || '',
                             timestamp: new Date((Number(postData[5] || postData.timestamp || 0)) * 1000),
@@ -1181,7 +1237,7 @@
             `;
         }
 
-        // Render App
+        // Render App - UPDATED TO SHOW PFP IMAGES
         function renderApp() {
             const hasImage = state.imagePreview ? 'has-image' : '';
             const userPostCount = state.userPostCount || 0;
@@ -1209,6 +1265,12 @@
             if (state.currentView === 'profile') {
                 const viewingPost = state.userPosts[0];
                 const profileName = viewingPost?.authorName || 'User';
+                const profilePfp = viewingPost?.authorPfp;
+                
+                // Profile avatar display
+                const profileAvatar = profilePfp 
+                    ? `<img src="${profilePfp}" alt="Profile">`
+                    : profileName[0];
                 
                 document.getElementById('root').innerHTML = `
                     <div class="app-container">
@@ -1223,7 +1285,7 @@
 
                         <div class="profile-card" style="display: block;">
                             <div class="profile-content">
-                                <div class="profile-avatar">${profileName[0]}</div>
+                                <div class="profile-avatar">${profileAvatar}</div>
                                 <div class="profile-info">
                                     <div class="profile-name">${profileName}</div>
                                     <div class="profile-address">${state.viewingAddress.slice(0, 6)}...${state.viewingAddress.slice(-4)}</div>
@@ -1245,10 +1307,15 @@
                                     <h3>No posts yet</h3>
                                     <p>This user hasn't posted anything.</p>
                                 </div>
-                            ` : state.userPosts.map(post => `
+                            ` : state.userPosts.map(post => {
+                                const postAvatar = post.authorPfp 
+                                    ? `<img src="${post.authorPfp}" alt="${post.authorName}">`
+                                    : post.authorName[0];
+                                
+                                return `
                                 <article class="post-card">
                                     <div class="post-header">
-                                        <div class="post-avatar">${post.authorName[0]}</div>
+                                        <div class="post-avatar">${postAvatar}</div>
                                         <div class="post-user-info">
                                             <h3>${post.authorName}</h3>
                                             <div class="post-time">${post.timestamp.toLocaleString()}</div>
@@ -1272,7 +1339,8 @@
                                         </div>
                                     </div>
                                 </article>
-                            `).join('')}
+                                `;
+                            }).join('')}
                         </div>
                     </div>
                 `;
@@ -1351,10 +1419,16 @@
                                 <h3>No posts yet</h3>
                                 <p>Be the first to share your authentic moment!</p>
                             </div>
-                        ` : state.posts.map(post => `
+                        ` : state.posts.map(post => {
+                            // Show profile picture if available, otherwise show first letter
+                            const postAvatar = post.authorPfp 
+                                ? `<img src="${post.authorPfp}" alt="${post.authorName}">`
+                                : post.authorName[0];
+                            
+                            return `
                             <article class="post-card">
                                 <div class="post-header" onclick="viewUserProfile('${post.author}')">
-                                    <div class="post-avatar">${post.authorName[0]}</div>
+                                    <div class="post-avatar">${postAvatar}</div>
                                     <div class="post-user-info">
                                         <h3>${post.authorName}</h3>
                                         <div class="post-time">${post.timestamp.toLocaleString()}</div>
@@ -1381,7 +1455,8 @@
                                     </div>
                                 </div>
                             </article>
-                        `).join('')}
+                            `;
+                        }).join('')}
                     </div>
                 </div>
             `;
