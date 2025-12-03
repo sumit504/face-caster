@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Face-caster - Share Real Faces</title>
+    <title>Face-caster - Decentralized Social Network</title>
     
     <!-- Farcaster Mini App Metadata -->
     <meta name="fc:miniapp" content='{
@@ -23,7 +23,7 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Crimson+Pro:wght@300;400;600&display=swap" rel="stylesheet">
     
-    <!-- FIXED: Better CDN for ethers.js -->
+    <!-- Ethers.js from CDN -->
     <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
     
     <style>
@@ -52,6 +52,7 @@
             color: var(--text-primary);
             line-height: 1.6;
             overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
         }
 
         .app-container {
@@ -112,6 +113,53 @@
             position: relative;
         }
 
+        .search-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .search-input-container {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 12px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: 'Crimson Pro', serif;
+            font-size: 1rem;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .search-button {
+            background: var(--accent);
+            color: var(--bg-primary);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .search-button:hover {
+            background: var(--accent-dim);
+            transform: translateY(-2px);
+        }
+
         .profile-card {
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
             border: 2px solid rgba(0, 255, 136, 0.3);
@@ -145,12 +193,6 @@
             box-shadow: 0 4px 16px rgba(0, 255, 136, 0.3);
         }
 
-        .profile-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
         .profile-info {
             flex: 1;
             min-width: 0;
@@ -163,9 +205,9 @@
             margin-bottom: 4px;
         }
 
-        .profile-fid {
+        .profile-address {
             color: var(--accent);
-            font-size: 1rem;
+            font-size: 0.9rem;
             font-weight: 600;
             font-family: 'Space Mono', monospace;
         }
@@ -328,6 +370,17 @@
             font-size: 0.85rem;
         }
 
+        .success-message {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 16px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85rem;
+        }
+
         .warning-message {
             background: rgba(255, 136, 0, 0.1);
             border: 1px solid var(--warning);
@@ -364,6 +417,12 @@
             align-items: center;
             gap: 12px;
             border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .post-header:hover {
+            background: var(--bg-secondary);
         }
 
         .post-avatar {
@@ -440,69 +499,6 @@
             color: var(--accent);
         }
 
-        .comments-section {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .comment {
-            background: var(--bg-secondary);
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 0.95rem;
-        }
-
-        .comment strong {
-            font-family: 'Space Mono', monospace;
-            color: var(--accent);
-            margin-right: 8px;
-        }
-
-        .comment-input-area {
-            display: flex;
-            gap: 8px;
-            margin-top: 12px;
-        }
-
-        .comment-input {
-            flex: 1;
-            padding: 10px;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            color: var(--text-primary);
-            font-family: 'Crimson Pro', serif;
-            font-size: 0.95rem;
-        }
-
-        .comment-input:focus {
-            outline: none;
-            border-color: var(--accent);
-        }
-
-        .comment-button {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            color: var(--accent);
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-family: 'Space Mono', monospace;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-size: 0.85rem;
-        }
-
-        .comment-button:hover:not(:disabled) {
-            background: var(--accent);
-            color: var(--bg-primary);
-        }
-
-        .comment-button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
         .empty-state {
             text-align: center;
             padding: 60px 20px;
@@ -530,10 +526,40 @@
             to { transform: rotate(360deg); }
         }
 
+        .tab-container {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+        }
+
+        .tab.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        .tab:hover {
+            color: var(--text-primary);
+        }
+
         @media (max-width: 640px) {
             .header h1 { font-size: 2rem; }
             .app-container { padding: 16px; }
             .create-post-section { padding: 16px; }
+            .search-input-container { flex-direction: column; }
         }
     </style>
 </head>
@@ -544,7 +570,7 @@
                 <h1>Face-caster</h1>
                 <p>Decentralized real face social network</p>
                 <p style="font-size: 0.85rem; margin-top: 12px; color: var(--accent);">
-                    Powered by Base + Pinata IPFS + Farcaster
+                    Powered by Base + Pinata IPFS
                 </p>
             </header>
             <div class="empty-state">
@@ -560,14 +586,14 @@
         import { base } from 'https://esm.sh/@wagmi/core/chains';
         import { farcasterMiniApp } from 'https://esm.sh/@farcaster/miniapp-wagmi-connector';
         
-        // Configuration - REPLACE THESE VALUES WITH YOUR ACTUAL KEYS
+        // Configuration
         const CONTRACT_ADDRESS = "0xc102f22A1be1dac63aCBe54dd01b97a4c0368C1d";
-        const PINATA_JWT = "PINATA"; // Get from https://app.pinata.cloud
+        const PINATA_JWT = "YOUR_PINATA_JWT"; // REPLACE THIS
         const NEYNAR_API_KEY = "8BF81B8C-C491-4735-8E1C-FC491FF048D4";
         const BASE_CHAIN_ID = 8453;
         const MAX_POSTS = 10;
         
-        // Contract ABI - Proper JSON format for wagmi/viem
+        // Contract ABI
         const CONTRACT_ABI = [
             {
                 "inputs": [
@@ -638,6 +664,13 @@
                 "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
                 "stateMutability": "view",
                 "type": "function"
+            },
+            {
+                "inputs": [{"internalType": "address", "name": "_user", "type": "address"}],
+                "name": "getUserPosts",
+                "outputs": [{"internalType": "uint256[]", "name": "postIds", "type": "uint256[]"}],
+                "stateMutability": "view",
+                "type": "function"
             }
         ];
 
@@ -647,15 +680,18 @@
             contract: null,
             provider: null,
             posts: [],
+            userPosts: [],
             loading: false,
             imageFile: null,
             imagePreview: null,
             fid: null,
             userProfile: null,
-            walletConfig: null
+            walletConfig: null,
+            currentView: 'feed', // 'feed' or 'profile'
+            viewingAddress: null
         };
 
-        // Initialize Farcaster SDK
+        // Initialize Farcaster SDK (with better error handling)
         async function initializeFarcaster() {
             try {
                 await sdk.actions.ready({ disableNativeGestures: true });
@@ -670,8 +706,9 @@
                 await initializeWallet();
                 return true;
             } catch (err) {
-                console.log('⚠️ SDK not available:', err);
-                renderSetupWarning();
+                console.log('⚠️ SDK not available (running in browser):', err);
+                // Continue without SDK - app should still work
+                await initializeWallet();
                 return false;
             }
         }
@@ -704,16 +741,24 @@
             }
         }
 
-        // Initialize Wallet
+        // Initialize Wallet - FIXED for mobile
         async function initializeWallet() {
             try {
                 console.log('🔄 Initializing wallet...');
                 
+                // Check if MetaMask is available (for desktop browser testing)
+                if (window.ethereum && !window.ethereum.isFarcasterMiniApp) {
+                    console.log('Using MetaMask/browser wallet');
+                    await connectBrowserWallet();
+                    return;
+                }
+                
+                // Use Farcaster Mini App wallet
                 state.walletConfig = createConfig({
                     chains: [base],
                     connectors: [farcasterMiniApp()],
                     transports: {
-                        [base.id]: http('https://base-mainnet.g.alchemy.com/v2/pfjgAI8H9sXDqwp8dPvUs')
+                        [base.id]: http('https://mainnet.base.org')
                     }
                 });
 
@@ -736,10 +781,35 @@
                         updateWalletConnection(newAccount);
                     } catch (error) {
                         console.log('⚠️ Auto-connect failed:', error);
+                        renderConnectWallet();
                     }
                 }
             } catch (error) {
                 console.error('❌ Failed to initialize wallet:', error);
+                renderConnectWallet();
+            }
+        }
+
+        // Connect Browser Wallet (for desktop testing)
+        async function connectBrowserWallet() {
+            try {
+                const accounts = await window.ethereum.request({ 
+                    method: 'eth_requestAccounts' 
+                });
+                
+                if (accounts && accounts.length > 0) {
+                    state.account = accounts[0];
+                    state.provider = new window.ethers.providers.Web3Provider(window.ethereum);
+                    const signer = state.provider.getSigner();
+                    state.contract = new window.ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+                    
+                    console.log('✅ Browser wallet connected:', state.account);
+                    await loadPosts();
+                    renderApp();
+                }
+            } catch (error) {
+                console.error('❌ Browser wallet connection failed:', error);
+                renderConnectWallet();
             }
         }
 
@@ -747,17 +817,13 @@
             if (account.isConnected && account.address) {
                 state.account = account.address;
                 
-                // FIXED: Use window.ethereum directly with ethers from CDN
                 if (window.ethereum && typeof window.ethers !== 'undefined') {
                     state.provider = new window.ethers.providers.Web3Provider(window.ethereum);
                     const signer = state.provider.getSigner();
                     state.contract = new window.ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
                     console.log('✅ Wallet connected:', state.account);
                     
-                    // Test contract connection
-                    testContractConnection().then(() => {
-                        loadPosts().then(() => renderApp());
-                    });
+                    loadPosts().then(() => renderApp());
                 } else {
                     console.error('❌ Ethers.js not available');
                     renderSetupWarning();
@@ -768,89 +834,176 @@
             }
         }
 
-        // Test contract connection and data format
-        async function testContractConnection() {
+        // Load posts from blockchain - FIXED to properly count user's posts
+        async function loadPosts() {
             try {
-                console.log('🔍 Testing contract connection...');
+                if (!state.walletConfig && !state.contract) return;
                 
-                const totalPosts = await readContract(state.walletConfig, {
-                    address: CONTRACT_ADDRESS,
-                    abi: CONTRACT_ABI,
-                    functionName: 'getTotalPosts',
-                    chainId: BASE_CHAIN_ID
-                });
+                console.log('📥 Loading posts from blockchain...');
                 
-                console.log('Total posts in contract:', totalPosts.toString());
-                
-                // If there are posts, test reading one
-                if (Number(totalPosts) > 0) {
-                    const postIds = await readContract(state.walletConfig, {
+                let postIds;
+                if (state.walletConfig) {
+                    postIds = await readContract(state.walletConfig, {
                         address: CONTRACT_ADDRESS,
                         abi: CONTRACT_ABI,
                         functionName: 'getAllPostIds',
                         chainId: BASE_CHAIN_ID
                     });
-                    
-                    console.log('Sample post ID:', postIds[0]);
-                    
-                    const samplePost = await readContract(state.walletConfig, {
-                        address: CONTRACT_ADDRESS,
-                        abi: CONTRACT_ABI,
-                        functionName: 'getPost',
-                        args: [postIds[0]],
-                        chainId: BASE_CHAIN_ID
-                    });
-                    
-                    console.log('Sample post data structure:', samplePost);
-                    console.log('Is array?', Array.isArray(samplePost));
-                    console.log('Keys:', Object.keys(samplePost));
+                } else {
+                    postIds = await state.contract.getAllPostIds();
                 }
-                
-                console.log('✅ Contract connection test complete');
-            } catch (error) {
-                console.error('⚠️ Contract test error:', error);
-            }
-        }
-
-        // Load posts from blockchain
-        async function loadPosts() {
-            try {
-                if (!state.walletConfig) return;
-                
-                console.log('📥 Loading posts from blockchain...');
-                
-                const postIds = await readContract(state.walletConfig, {
-                    address: CONTRACT_ADDRESS,
-                    abi: CONTRACT_ABI,
-                    functionName: 'getAllPostIds',
-                    chainId: BASE_CHAIN_ID
-                });
                 
                 console.log('Post IDs:', postIds);
                 const posts = [];
+                let userPostCount = 0;
 
                 for (let id of postIds) {
                     try {
-                        const postData = await readContract(state.walletConfig, {
-                            address: CONTRACT_ADDRESS,
-                            abi: CONTRACT_ABI,
-                            functionName: 'getPost',
-                            args: [id],
-                            chainId: BASE_CHAIN_ID
-                        });
+                        let postData;
+                        if (state.walletConfig) {
+                            postData = await readContract(state.walletConfig, {
+                                address: CONTRACT_ADDRESS,
+                                abi: CONTRACT_ABI,
+                                functionName: 'getPost',
+                                args: [id],
+                                chainId: BASE_CHAIN_ID
+                            });
+                        } else {
+                            postData = await state.contract.getPost(id);
+                        }
                         
-                        console.log('Post data for ID', id, ':', postData);
+                        console.log('Post data for ID', id.toString(), ':', postData);
                         
-                        const hasLiked = state.account ? await readContract(state.walletConfig, {
-                            address: CONTRACT_ADDRESS,
-                            abi: CONTRACT_ABI,
-                            functionName: 'hasUserLiked',
-                            args: [id, state.account],
-                            chainId: BASE_CHAIN_ID
-                        }) : false;
+                        let hasLiked = false;
+                        if (state.account) {
+                            if (state.walletConfig) {
+                                hasLiked = await readContract(state.walletConfig, {
+                                    address: CONTRACT_ADDRESS,
+                                    abi: CONTRACT_ABI,
+                                    functionName: 'hasUserLiked',
+                                    args: [id, state.account],
+                                    chainId: BASE_CHAIN_ID
+                                });
+                            } else {
+                                hasLiked = await state.contract.hasUserLiked(id, state.account);
+                            }
+                        }
 
-                        // Handle both array and object response formats
-                        posts.push({
+                        const post = {
+                            id: (postData[0] || postData.id)?.toString() || id.toString(),
+                            author: postData[1] || postData.author || '',
+                            authorName: postData[2] || postData.authorName || 'Anonymous',
+                            ipfsHash: postData[3] || postData.ipfsHash || '',
+                            caption: postData[4] || postData.caption || '',
+                            timestamp: new Date((Number(postData[5] || postData.timestamp || 0)) * 1000),
+                            likes: Number(postData[6] || postData.likes || 0),
+                            hasLiked: hasLiked
+                        };
+                        
+                        posts.push(post);
+                        
+                        // Count posts by current user
+                        if (post.author.toLowerCase() === state.account.toLowerCase()) {
+                            userPostCount++;
+                        }
+                    } catch (postError) {
+                        console.error(`Error loading post ${id}:`, postError);
+                        continue;
+                    }
+                }
+
+                state.posts = posts.reverse();
+                console.log(`✅ Loaded ${posts.length} total posts, ${userPostCount} by current user`);
+                
+                // Display correct count
+                state.userPostCount = userPostCount;
+            } catch (err) {
+                console.error('Error loading posts:', err);
+                state.posts = [];
+                state.userPostCount = 0;
+            }
+        }
+
+        // Search for user profile
+        async function searchUser(addressOrName) {
+            try {
+                const searchTerm = addressOrName.trim().toLowerCase();
+                
+                // Check if it's an address
+                if (searchTerm.startsWith('0x') && searchTerm.length === 42) {
+                    await viewUserProfile(searchTerm);
+                } else {
+                    // Search by name in posts
+                    const user = state.posts.find(post => 
+                        post.authorName.toLowerCase() === searchTerm
+                    );
+                    
+                    if (user) {
+                        await viewUserProfile(user.author);
+                    } else {
+                        alert('User not found. Try searching by address (0x...)');
+                    }
+                }
+            } catch (error) {
+                console.error('Search error:', error);
+                alert('Search failed. Please try again.');
+            }
+        }
+
+        // View user profile
+        async function viewUserProfile(address) {
+            try {
+                state.currentView = 'profile';
+                state.viewingAddress = address;
+                state.loading = true;
+                renderApp();
+                
+                // Get user's posts
+                let userPostIds;
+                if (state.walletConfig) {
+                    userPostIds = await readContract(state.walletConfig, {
+                        address: CONTRACT_ADDRESS,
+                        abi: CONTRACT_ABI,
+                        functionName: 'getUserPosts',
+                        args: [address],
+                        chainId: BASE_CHAIN_ID
+                    });
+                } else {
+                    userPostIds = await state.contract.getUserPosts(address);
+                }
+                
+                const userPosts = [];
+                for (let id of userPostIds) {
+                    try {
+                        let postData;
+                        if (state.walletConfig) {
+                            postData = await readContract(state.walletConfig, {
+                                address: CONTRACT_ADDRESS,
+                                abi: CONTRACT_ABI,
+                                functionName: 'getPost',
+                                args: [id],
+                                chainId: BASE_CHAIN_ID
+                            });
+                        } else {
+                            postData = await state.contract.getPost(id);
+                        }
+                        
+                        let hasLiked = false;
+                        if (state.account) {
+                            if (state.walletConfig) {
+                                hasLiked = await readContract(state.walletConfig, {
+                                    address: CONTRACT_ADDRESS,
+                                    abi: CONTRACT_ABI,
+                                    functionName: 'hasUserLiked',
+                                    args: [id, state.account],
+                                    chainId: BASE_CHAIN_ID
+                                });
+                            } else {
+                                hasLiked = await state.contract.hasUserLiked(id, state.account);
+                            }
+                        }
+
+                        userPosts.push({
                             id: (postData[0] || postData.id)?.toString() || id.toString(),
                             author: postData[1] || postData.author || '',
                             authorName: postData[2] || postData.authorName || 'Anonymous',
@@ -862,17 +1015,19 @@
                         });
                     } catch (postError) {
                         console.error(`Error loading post ${id}:`, postError);
-                        // Skip this post and continue
                         continue;
                     }
                 }
-
-                state.posts = posts.reverse();
-                console.log('✅ Loaded', posts.length, 'posts');
-            } catch (err) {
-                console.error('Error loading posts:', err);
-                // Don't throw error, just show empty state
-                state.posts = [];
+                
+                state.userPosts = userPosts.reverse();
+                state.loading = false;
+                renderApp();
+            } catch (error) {
+                console.error('Error viewing profile:', error);
+                state.loading = false;
+                alert('Failed to load user profile');
+                state.currentView = 'feed';
+                renderApp();
             }
         }
 
@@ -882,13 +1037,11 @@
                 const formData = new FormData();
                 formData.append('file', file);
 
-                // Optional: Add metadata
                 const metadata = JSON.stringify({
                     name: `face-caster-${Date.now()}`,
                 });
                 formData.append('pinataMetadata', metadata);
 
-                // Optional: Add options
                 const options = JSON.stringify({
                     cidVersion: 0,
                 });
@@ -944,8 +1097,8 @@
                 return;
             }
 
-            if (state.posts.length >= MAX_POSTS) {
-                alert('Maximum post limit reached (10 posts)');
+            if ((state.userPostCount || 0) >= MAX_POSTS) {
+                alert('You have reached the maximum post limit (10 posts)');
                 return;
             }
 
@@ -953,29 +1106,34 @@
                 state.loading = true;
                 renderApp();
 
-                // Upload to IPFS with Pinata
                 console.log('Starting IPFS upload with Pinata...');
                 const ipfsHash = await uploadToPinata(state.imageFile);
                 console.log('✅ Uploaded to IPFS:', ipfsHash);
 
-                // Get caption
                 const caption = document.getElementById('caption-input').value;
 
                 console.log('📝 Creating post on blockchain...');
-                // Create post on blockchain
-                const hash = await writeContract(state.walletConfig, {
-                    address: CONTRACT_ADDRESS,
-                    abi: CONTRACT_ABI,
-                    functionName: 'createPost',
-                    args: [ipfsHash, caption],
-                    chainId: BASE_CHAIN_ID
-                });
-
-                console.log('⏳ Waiting for transaction confirmation...');
-                await waitForTransactionReceipt(state.walletConfig, {
-                    hash: hash,
-                    chainId: BASE_CHAIN_ID
-                });
+                
+                let hash;
+                if (state.walletConfig) {
+                    hash = await writeContract(state.walletConfig, {
+                        address: CONTRACT_ADDRESS,
+                        abi: CONTRACT_ABI,
+                        functionName: 'createPost',
+                        args: [ipfsHash, caption],
+                        chainId: BASE_CHAIN_ID
+                    });
+                    
+                    console.log('⏳ Waiting for transaction confirmation...');
+                    await waitForTransactionReceipt(state.walletConfig, {
+                        hash: hash,
+                        chainId: BASE_CHAIN_ID
+                    });
+                } else {
+                    const tx = await state.contract.createPost(ipfsHash, caption);
+                    console.log('⏳ Waiting for transaction confirmation...');
+                    await tx.wait();
+                }
 
                 console.log('✅ Transaction confirmed!');
 
@@ -994,7 +1152,6 @@
                 state.loading = false;
                 renderApp();
                 
-                // Better error messages
                 let errorMessage = 'Failed to create post';
                 if (err.message.includes('IPFS') || err.message.includes('Pinata')) {
                     errorMessage = 'Failed to upload image to IPFS. Please check your Pinata JWT token.';
@@ -1011,29 +1168,41 @@
         // Like/Unlike post
         async function toggleLike(postId, hasLiked) {
             try {
-                const hash = hasLiked 
-                    ? await writeContract(state.walletConfig, {
-                        address: CONTRACT_ADDRESS,
-                        abi: CONTRACT_ABI,
-                        functionName: 'unlikePost',
-                        args: [postId],
-                        chainId: BASE_CHAIN_ID
-                    })
-                    : await writeContract(state.walletConfig, {
-                        address: CONTRACT_ADDRESS,
-                        abi: CONTRACT_ABI,
-                        functionName: 'likePost',
-                        args: [postId],
+                let hash;
+                if (state.walletConfig) {
+                    hash = hasLiked 
+                        ? await writeContract(state.walletConfig, {
+                            address: CONTRACT_ADDRESS,
+                            abi: CONTRACT_ABI,
+                            functionName: 'unlikePost',
+                            args: [postId],
+                            chainId: BASE_CHAIN_ID
+                        })
+                        : await writeContract(state.walletConfig, {
+                            address: CONTRACT_ADDRESS,
+                            abi: CONTRACT_ABI,
+                            functionName: 'likePost',
+                            args: [postId],
+                            chainId: BASE_CHAIN_ID
+                        });
+                        
+                    await waitForTransactionReceipt(state.walletConfig, {
+                        hash: hash,
                         chainId: BASE_CHAIN_ID
                     });
-                    
-                await waitForTransactionReceipt(state.walletConfig, {
-                    hash: hash,
-                    chainId: BASE_CHAIN_ID
-                });
+                } else {
+                    const tx = hasLiked 
+                        ? await state.contract.unlikePost(postId)
+                        : await state.contract.likePost(postId);
+                    await tx.wait();
+                }
                 
                 await loadPosts();
-                renderApp();
+                if (state.currentView === 'profile') {
+                    await viewUserProfile(state.viewingAddress);
+                } else {
+                    renderApp();
+                }
             } catch (err) {
                 console.error('Error toggling like:', err);
             }
@@ -1061,7 +1230,6 @@
 
         // Get image URL from Pinata gateway
         function getImageUrl(ipfsHash) {
-            // Using Pinata's dedicated gateway (faster and more reliable)
             return `https://monocats.mypinata.cloud/ipfs/${ipfsHash}`;
         }
 
@@ -1075,14 +1243,8 @@
                     </header>
                     <div class="warning-message">
                         <strong>⚠️ Setup Required</strong>
-                        <p>Please configure the following in the HTML file:</p>
-                        <ol style="margin: 10px 0 10px 20px; text-align: left;">
-                            <li>Deploy the smart contract to Base blockchain</li>
-                            <li>Get a Pinata JWT token from app.pinata.cloud</li>
-                            <li>Get a Neynar API key from neynar.com</li>
-                            <li>Update CONTRACT_ADDRESS, PINATA_JWT, and NEYNAR_API_KEY</li>
-                        </ol>
-                        <p style="margin-top: 10px;">See README.md for detailed instructions</p>
+                        <p>Please update PINATA_JWT in the HTML file with your Pinata API token.</p>
+                        <p style="margin-top: 10px;">Get your token from <a href="https://app.pinata.cloud" target="_blank" style="color: var(--accent);">app.pinata.cloud</a></p>
                     </div>
                 </div>
             `;
@@ -1096,7 +1258,7 @@
                         <h1>Face-caster</h1>
                         <p>Decentralized real face social network</p>
                         <p style="font-size: 0.85rem; margin-top: 12px; color: var(--accent);">
-                            Powered by Base + IPFS + Farcaster
+                            Powered by Base + IPFS
                         </p>
                     </header>
                     <div class="connect-wallet-section">
@@ -1115,6 +1277,7 @@
         // Render App
         function renderApp() {
             const hasImage = state.imagePreview ? 'has-image' : '';
+            const userPostCount = state.userPostCount || 0;
             
             let profileHTML = '';
             if (state.userProfile) {
@@ -1128,13 +1291,88 @@
                             <div class="profile-avatar">${avatar}</div>
                             <div class="profile-info">
                                 <div class="profile-name">${state.userProfile.display_name || state.userProfile.username}</div>
-                                <div class="profile-fid">FID: ${state.fid}</div>
+                                <div class="profile-address">FID: ${state.fid}</div>
                             </div>
                         </div>
                     </div>
                 `;
             }
             
+            // Render profile view
+            if (state.currentView === 'profile') {
+                const viewingPost = state.userPosts[0];
+                const profileName = viewingPost?.authorName || 'User';
+                
+                document.getElementById('root').innerHTML = `
+                    <div class="app-container">
+                        <header class="header">
+                            <h1>Face-caster</h1>
+                            <p>Connected: ${state.account.slice(0, 6)}...${state.account.slice(-4)}</p>
+                        </header>
+
+                        <button class="post-button" style="margin-bottom: 24px;" onclick="state.currentView = 'feed'; renderApp();">
+                            ← Back to Feed
+                        </button>
+
+                        <div class="profile-card" style="display: block;">
+                            <div class="profile-content">
+                                <div class="profile-avatar">${profileName[0]}</div>
+                                <div class="profile-info">
+                                    <div class="profile-name">${profileName}</div>
+                                    <div class="profile-address">${state.viewingAddress.slice(0, 6)}...${state.viewingAddress.slice(-4)}</div>
+                                    <div style="margin-top: 8px; color: var(--text-secondary);">
+                                        ${state.userPosts.length} ${state.userPosts.length === 1 ? 'post' : 'posts'}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="feed">
+                            ${state.loading ? `
+                                <div class="empty-state">
+                                    <div class="loading-spinner"></div>
+                                    <p style="margin-top: 20px;">Loading posts...</p>
+                                </div>
+                            ` : state.userPosts.length === 0 ? `
+                                <div class="empty-state">
+                                    <h3>No posts yet</h3>
+                                    <p>This user hasn't posted anything.</p>
+                                </div>
+                            ` : state.userPosts.map(post => `
+                                <article class="post-card">
+                                    <div class="post-header">
+                                        <div class="post-avatar">${post.authorName[0]}</div>
+                                        <div class="post-user-info">
+                                            <h3>${post.authorName}</h3>
+                                            <div class="post-time">${post.timestamp.toLocaleString()}</div>
+                                        </div>
+                                    </div>
+
+                                    <img src="${getImageUrl(post.ipfsHash)}" alt="Post" class="post-image" />
+
+                                    <div class="post-content">
+                                        ${post.caption ? `<p class="post-caption">${post.caption}</p>` : ''}
+
+                                        <div class="post-actions">
+                                            <button class="action-button ${post.hasLiked ? 'liked' : ''}" onclick="toggleLike('${post.id}', ${post.hasLiked})">
+                                                <span>${post.hasLiked ? '♥' : '♡'}</span>
+                                                <span>${post.likes} ${post.likes === 1 ? 'like' : 'likes'}</span>
+                                            </button>
+                                            <button class="action-button" onclick="shareToFarcaster('${post.id}', '${getImageUrl(post.ipfsHash)}')">
+                                                <span>🔗</span>
+                                                <span>Share</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </article>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Render main feed view
             document.getElementById('root').innerHTML = `
                 <div class="app-container">
                     <header class="header">
@@ -1142,11 +1380,26 @@
                         <p>Connected: ${state.account.slice(0, 6)}...${state.account.slice(-4)}</p>
                         <div class="post-limit-indicator">
                             <span class="dot"></span>
-                            <span>${state.posts.length} / ${MAX_POSTS} posts</span>
+                            <span>Your posts: ${userPostCount} / ${MAX_POSTS}</span>
                         </div>
                     </header>
 
                     ${profileHTML}
+
+                    <section class="search-section">
+                        <h2 style="font-family: 'Space Mono', monospace; font-size: 1.2rem; margin-bottom: 12px; color: var(--accent);">Search Users</h2>
+                        <div class="search-input-container">
+                            <input 
+                                type="text" 
+                                id="search-input" 
+                                class="search-input" 
+                                placeholder="Enter address (0x...) or username"
+                            />
+                            <button class="search-button" onclick="searchUser(document.getElementById('search-input').value)">
+                                Search
+                            </button>
+                        </div>
+                    </section>
 
                     <section class="create-post-section">
                         <h2>Create Post</h2>
@@ -1170,10 +1423,20 @@
 
                         <textarea id="caption-input" class="caption-input" placeholder="Write a caption..." ${state.loading ? 'disabled' : ''}></textarea>
 
-                        <button class="post-button" onclick="createPost()" ${!state.imageFile || state.posts.length >= MAX_POSTS || state.loading ? 'disabled' : ''}>
+                        <button class="post-button" onclick="createPost()" ${!state.imageFile || userPostCount >= MAX_POSTS || state.loading ? 'disabled' : ''}>
                             ${state.loading ? '⏳ Uploading & Creating...' : '💥 Post to Blockchain'}
                         </button>
+                        
+                        ${userPostCount >= MAX_POSTS ? `
+                            <div class="warning-message" style="margin-top: 16px;">
+                                You have reached the maximum post limit (10 posts)
+                            </div>
+                        ` : ''}
                     </section>
+
+                    <div class="tab-container">
+                        <button class="tab active">All Posts</button>
+                    </div>
 
                     <div class="feed">
                         ${state.posts.length === 0 ? `
@@ -1183,7 +1446,7 @@
                             </div>
                         ` : state.posts.map(post => `
                             <article class="post-card">
-                                <div class="post-header">
+                                <div class="post-header" onclick="viewUserProfile('${post.author}')">
                                     <div class="post-avatar">${post.authorName[0]}</div>
                                     <div class="post-user-info">
                                         <h3>${post.authorName}</h3>
@@ -1223,6 +1486,8 @@
         window.toggleLike = toggleLike;
         window.renderApp = renderApp;
         window.shareToFarcaster = shareToFarcaster;
+        window.searchUser = searchUser;
+        window.viewUserProfile = viewUserProfile;
         window.state = state;
 
         // Initialize
@@ -1230,34 +1495,23 @@
             try {
                 console.log('🚀 Initializing Face-caster...');
                 
-                if (CONTRACT_ADDRESS === "YOUR_CONTRACT_ADDRESS_HERE") {
+                if (PINATA_JWT === "YOUR_PINATA_JWT") {
                     renderSetupWarning();
                     return;
                 }
                 
-                // Check if ethers is loaded
                 if (typeof window.ethers === 'undefined') {
                     console.error('❌ Ethers.js not loaded');
                     renderSetupWarning();
                     return;
                 }
                 
-                const isFarcaster = await initializeFarcaster();
-                
-                // Try to add mini app (may fail if manifest not configured)
-                try {
-                    if (sdk?.actions?.addMiniApp) {
-                        await sdk.actions.addMiniApp();
-                        console.log('✅ Mini app added');
-                    }
-                } catch (miniAppError) {
-                    console.log('⚠️ Could not add mini app (this is optional):', miniAppError.message);
-                }
+                await initializeFarcaster();
                 
                 console.log('✅ App initialization complete');
             } catch (err) {
                 console.error("❌ Initialization error:", err);
-                renderSetupWarning();
+                renderConnectWallet();
             }
         })();
 
