@@ -191,10 +191,10 @@ contract FaceCaster {
     
     /**
      * @dev Get all post IDs
-     * @return Array of post IDs
+     * @return postIds Array of all post IDs
      */
-    function getAllPostIds() external view returns (uint256[] memory) {
-        uint256[] memory postIds = new uint256[](postCounter);
+    function getAllPostIds() external view returns (uint256[] memory postIds) {
+        postIds = new uint256[](postCounter);
         for (uint256 i = 1; i <= postCounter; i++) {
             postIds[i - 1] = i;
         }
@@ -204,7 +204,14 @@ contract FaceCaster {
     /**
      * @dev Get post details
      * @param _postId ID of the post
-     * @return Post struct data
+     * @return id Post ID
+     * @return author Post author address
+     * @return authorName Author's display name
+     * @return ipfsHash IPFS hash of the image
+     * @return caption Post caption text
+     * @return timestamp Post creation timestamp
+     * @return likes Total number of likes
+     * @return commentCount Total number of comments
      */
     function getPost(uint256 _postId) external view postExists(_postId) returns (
         uint256 id,
@@ -232,9 +239,9 @@ contract FaceCaster {
     /**
      * @dev Get all comments for a post
      * @param _postId ID of the post
-     * @return Array of comments
+     * @return comments Array of all comments for the post
      */
-    function getComments(uint256 _postId) external view postExists(_postId) returns (Comment[] memory) {
+    function getComments(uint256 _postId) external view postExists(_postId) returns (Comment[] memory comments) {
         return postComments[_postId];
     }
     
@@ -242,34 +249,34 @@ contract FaceCaster {
      * @dev Check if user has liked a post
      * @param _postId ID of the post
      * @param _user Address of the user
-     * @return Boolean indicating like status
+     * @return liked Boolean indicating if user has liked the post
      */
-    function hasUserLiked(uint256 _postId, address _user) external view postExists(_postId) returns (bool) {
+    function hasUserLiked(uint256 _postId, address _user) external view postExists(_postId) returns (bool liked) {
         return hasLiked[_postId][_user];
     }
     
     /**
      * @dev Get posts by a specific user
      * @param _user Address of the user
-     * @return Array of post IDs
+     * @return postIds Array of post IDs created by the user
      */
-    function getUserPosts(address _user) external view returns (uint256[] memory) {
+    function getUserPosts(address _user) external view returns (uint256[] memory postIds) {
         return userPosts[_user];
     }
     
     /**
      * @dev Get total number of posts
-     * @return Total post count
+     * @return count Total number of posts created
      */
-    function getTotalPosts() external view returns (uint256) {
+    function getTotalPosts() external view returns (uint256 count) {
         return postCounter;
     }
     
     /**
      * @dev Check if max posts limit is reached
-     * @return Boolean indicating if limit is reached
+     * @return reached Boolean indicating if the maximum post limit has been reached
      */
-    function isMaxPostsReached() external view returns (bool) {
+    function isMaxPostsReached() external view returns (bool reached) {
         return postCounter >= MAX_POSTS;
     }
 }
