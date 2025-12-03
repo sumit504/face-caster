@@ -193,6 +193,12 @@
             box-shadow: 0 4px 16px rgba(0, 255, 136, 0.3);
         }
 
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
         .profile-info {
             flex: 1;
             min-width: 0;
@@ -677,8 +683,6 @@
         // App State
         let state = {
             account: null,
-            contract: null,
-            provider: null,
             posts: [],
             userPosts: [],
             loading: false,
@@ -687,27 +691,21 @@
             fid: null,
             userProfile: null,
             walletConfig: null,
-            currentView: 'feed', // 'feed' or 'profile'
-            viewingAddress: null
+            currentView: 'feed',
+            viewingAddress: null,
+            userPostCount: 0,
+            isWalletConnected: false
         };
 
-        // Initialize Farcaster SDK (with better error handling)
+        // Initialize Farcaster SDK
         async function initializeFarcaster() {
             try {
                 await sdk.actions.ready({ disableNativeGestures: true });
                 console.log('✅ Farcaster SDK ready');
-                
-                const context = await sdk.context;
-                if (context?.user?.fid) {
-                    state.fid = context.user.fid;
-                    await fetchFarcasterProfile();
-                }
-                
                 await initializeWallet();
                 return true;
             } catch (err) {
-                console.log('⚠️ SDK not available (running in browser):', err);
-                // Continue without SDK - app should still work
+                console.log('⚠️ SDK not available:', err);
                 await initializeWallet();
                 return false;
             }
@@ -716,24 +714,28 @@
         // Fetch Farcaster Profile
         async function fetchFarcasterProfile() {
             try {
-                if (!state.fid || NEYNAR_API_KEY === "YOUR_NEYNAR_API_KEY_HERE") return;
+                const context = await sdk.context;
                 
-                const response = await fetch(
-                    `https://api.neynar.com/v2/farcaster/user/bulk?fids=${state.fid}`,
-                    {
-                        method: 'GET',
-                        headers: {
-                            'Accept': 'application/json',
-                            'api_key': NEYNAR_API_KEY
+                if (context?.user?.fid) {
+                    state.fid = context.user.fid;
+                    
+                    const response = await fetch(
+                        `https://api.neynar.com/v2/farcaster/user/bulk?fids=${state.fid}`,
+                        {
+                            method: 'GET',
+                            headers: {
+                                'Accept': 'application/json',
+                                'api_key': NEYNAR_API_KEY
+                            }
                         }
-                    }
-                );
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.users && data.users.length > 0) {
-                        state.userProfile = data.users[0];
-                        console.log('✅ Profile loaded:', state.userProfile);
+                    );
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.users && data.users.length > 0) {
+                            state.userProfile = data.users[0];
+                            console.log('✅ Profile loaded:', state.userProfile);
+                        }
                     }
                 }
             } catch (error) {
@@ -741,19 +743,11 @@
             }
         }
 
-        // Initialize Wallet - FIXED for mobile
+        // Initialize Wallet - FIXED LIKE FID BANGERS
         async function initializeWallet() {
             try {
-                console.log('🔄 Initializing wallet...');
+                console.log('🔄 Initializing wagmi wallet...');
                 
-                // Check if MetaMask is available (for desktop browser testing)
-                if (window.ethereum && !window.ethereum.isFarcasterMiniApp) {
-                    console.log('Using MetaMask/browser wallet');
-                    await connectBrowserWallet();
-                    return;
-                }
-                
-                // Use Farcaster Mini App wallet
                 state.walletConfig = createConfig({
                     chains: [base],
                     connectors: [farcasterMiniApp()],
@@ -781,77 +775,40 @@
                         updateWalletConnection(newAccount);
                     } catch (error) {
                         console.log('⚠️ Auto-connect failed:', error);
-                        renderConnectWallet();
                     }
                 }
             } catch (error) {
                 console.error('❌ Failed to initialize wallet:', error);
-                renderConnectWallet();
-            }
-        }
-
-        // Connect Browser Wallet (for desktop testing)
-        async function connectBrowserWallet() {
-            try {
-                const accounts = await window.ethereum.request({ 
-                    method: 'eth_requestAccounts' 
-                });
-                
-                if (accounts && accounts.length > 0) {
-                    state.account = accounts[0];
-                    state.provider = new window.ethers.providers.Web3Provider(window.ethereum);
-                    const signer = state.provider.getSigner();
-                    state.contract = new window.ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
-                    
-                    console.log('✅ Browser wallet connected:', state.account);
-                    await loadPosts();
-                    renderApp();
-                }
-            } catch (error) {
-                console.error('❌ Browser wallet connection failed:', error);
-                renderConnectWallet();
             }
         }
 
         function updateWalletConnection(account) {
             if (account.isConnected && account.address) {
+                state.isWalletConnected = true;
                 state.account = account.address;
+                console.log('✅ Wallet connected:', state.account);
                 
-                if (window.ethereum && typeof window.ethers !== 'undefined') {
-                    state.provider = new window.ethers.providers.Web3Provider(window.ethereum);
-                    const signer = state.provider.getSigner();
-                    state.contract = new window.ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
-                    console.log('✅ Wallet connected:', state.account);
-                    
-                    loadPosts().then(() => renderApp());
-                } else {
-                    console.error('❌ Ethers.js not available');
-                    renderSetupWarning();
-                }
+                loadPosts().then(() => renderApp());
             } else {
+                state.isWalletConnected = false;
                 state.account = null;
                 renderConnectWallet();
             }
         }
 
-        // Load posts from blockchain - FIXED to properly count user's posts
+        // Load posts from blockchain
         async function loadPosts() {
             try {
-                if (!state.walletConfig && !state.contract) return;
+                if (!state.walletConfig) return;
                 
                 console.log('📥 Loading posts from blockchain...');
                 
-                let postIds;
-                if (state.walletConfig) {
-                    postIds = await readContract(state.walletConfig, {
-                        address: CONTRACT_ADDRESS,
-                        abi: CONTRACT_ABI,
-                        functionName: 'getAllPostIds',
-                        chainId: BASE_CHAIN_ID
-                    });
-                } else {
-                    postIds = await state.contract.getAllPostIds();
-                }
+                const postIds = await readContract(state.walletConfig, {
+                    address: CONTRACT_ADDRESS,
+                    abi: CONTRACT_ABI,
+                    functionName: 'getAllPostIds',
+                    chainId: BASE_CHAIN_ID
+                });
                 
                 console.log('Post IDs:', postIds);
                 const posts = [];
@@ -859,35 +816,23 @@
 
                 for (let id of postIds) {
                     try {
-                        let postData;
-                        if (state.walletConfig) {
-                            postData = await readContract(state.walletConfig, {
-                                address: CONTRACT_ADDRESS,
-                                abi: CONTRACT_ABI,
-                                functionName: 'getPost',
-                                args: [id],
-                                chainId: BASE_CHAIN_ID
-                            });
-                        } else {
-                            postData = await state.contract.getPost(id);
-                        }
+                        const postData = await readContract(state.walletConfig, {
+                            address: CONTRACT_ADDRESS,
+                            abi: CONTRACT_ABI,
+                            functionName: 'getPost',
+                            args: [id],
+                            chainId: BASE_CHAIN_ID
+                        });
                         
                         console.log('Post data for ID', id.toString(), ':', postData);
                         
-                        let hasLiked = false;
-                        if (state.account) {
-                            if (state.walletConfig) {
-                                hasLiked = await readContract(state.walletConfig, {
-                                    address: CONTRACT_ADDRESS,
-                                    abi: CONTRACT_ABI,
-                                    functionName: 'hasUserLiked',
-                                    args: [id, state.account],
-                                    chainId: BASE_CHAIN_ID
-                                });
-                            } else {
-                                hasLiked = await state.contract.hasUserLiked(id, state.account);
-                            }
-                        }
+                        const hasLiked = state.account ? await readContract(state.walletConfig, {
+                            address: CONTRACT_ADDRESS,
+                            abi: CONTRACT_ABI,
+                            functionName: 'hasUserLiked',
+                            args: [id, state.account],
+                            chainId: BASE_CHAIN_ID
+                        }) : false;
 
                         const post = {
                             id: (postData[0] || postData.id)?.toString() || id.toString(),
@@ -903,7 +848,7 @@
                         posts.push(post);
                         
                         // Count posts by current user
-                        if (post.author.toLowerCase() === state.account.toLowerCase()) {
+                        if (state.account && post.author.toLowerCase() === state.account.toLowerCase()) {
                             userPostCount++;
                         }
                     } catch (postError) {
@@ -913,10 +858,9 @@
                 }
 
                 state.posts = posts.reverse();
+                state.userPostCount = userPostCount;
                 console.log(`✅ Loaded ${posts.length} total posts, ${userPostCount} by current user`);
                 
-                // Display correct count
-                state.userPostCount = userPostCount;
             } catch (err) {
                 console.error('Error loading posts:', err);
                 state.posts = [];
@@ -929,11 +873,9 @@
             try {
                 const searchTerm = addressOrName.trim().toLowerCase();
                 
-                // Check if it's an address
                 if (searchTerm.startsWith('0x') && searchTerm.length === 42) {
                     await viewUserProfile(searchTerm);
                 } else {
-                    // Search by name in posts
                     const user = state.posts.find(post => 
                         post.authorName.toLowerCase() === searchTerm
                     );
@@ -958,50 +900,32 @@
                 state.loading = true;
                 renderApp();
                 
-                // Get user's posts
-                let userPostIds;
-                if (state.walletConfig) {
-                    userPostIds = await readContract(state.walletConfig, {
-                        address: CONTRACT_ADDRESS,
-                        abi: CONTRACT_ABI,
-                        functionName: 'getUserPosts',
-                        args: [address],
-                        chainId: BASE_CHAIN_ID
-                    });
-                } else {
-                    userPostIds = await state.contract.getUserPosts(address);
-                }
+                const userPostIds = await readContract(state.walletConfig, {
+                    address: CONTRACT_ADDRESS,
+                    abi: CONTRACT_ABI,
+                    functionName: 'getUserPosts',
+                    args: [address],
+                    chainId: BASE_CHAIN_ID
+                });
                 
                 const userPosts = [];
                 for (let id of userPostIds) {
                     try {
-                        let postData;
-                        if (state.walletConfig) {
-                            postData = await readContract(state.walletConfig, {
-                                address: CONTRACT_ADDRESS,
-                                abi: CONTRACT_ABI,
-                                functionName: 'getPost',
-                                args: [id],
-                                chainId: BASE_CHAIN_ID
-                            });
-                        } else {
-                            postData = await state.contract.getPost(id);
-                        }
+                        const postData = await readContract(state.walletConfig, {
+                            address: CONTRACT_ADDRESS,
+                            abi: CONTRACT_ABI,
+                            functionName: 'getPost',
+                            args: [id],
+                            chainId: BASE_CHAIN_ID
+                        });
                         
-                        let hasLiked = false;
-                        if (state.account) {
-                            if (state.walletConfig) {
-                                hasLiked = await readContract(state.walletConfig, {
-                                    address: CONTRACT_ADDRESS,
-                                    abi: CONTRACT_ABI,
-                                    functionName: 'hasUserLiked',
-                                    args: [id, state.account],
-                                    chainId: BASE_CHAIN_ID
-                                });
-                            } else {
-                                hasLiked = await state.contract.hasUserLiked(id, state.account);
-                            }
-                        }
+                        const hasLiked = state.account ? await readContract(state.walletConfig, {
+                            address: CONTRACT_ADDRESS,
+                            abi: CONTRACT_ABI,
+                            functionName: 'hasUserLiked',
+                            args: [id, state.account],
+                            chainId: BASE_CHAIN_ID
+                        }) : false;
 
                         userPosts.push({
                             id: (postData[0] || postData.id)?.toString() || id.toString(),
@@ -1114,26 +1038,19 @@
 
                 console.log('📝 Creating post on blockchain...');
                 
-                let hash;
-                if (state.walletConfig) {
-                    hash = await writeContract(state.walletConfig, {
-                        address: CONTRACT_ADDRESS,
-                        abi: CONTRACT_ABI,
-                        functionName: 'createPost',
-                        args: [ipfsHash, caption],
-                        chainId: BASE_CHAIN_ID
-                    });
-                    
-                    console.log('⏳ Waiting for transaction confirmation...');
-                    await waitForTransactionReceipt(state.walletConfig, {
-                        hash: hash,
-                        chainId: BASE_CHAIN_ID
-                    });
-                } else {
-                    const tx = await state.contract.createPost(ipfsHash, caption);
-                    console.log('⏳ Waiting for transaction confirmation...');
-                    await tx.wait();
-                }
+                const hash = await writeContract(state.walletConfig, {
+                    address: CONTRACT_ADDRESS,
+                    abi: CONTRACT_ABI,
+                    functionName: 'createPost',
+                    args: [ipfsHash, caption],
+                    chainId: BASE_CHAIN_ID
+                });
+                
+                console.log('⏳ Waiting for transaction confirmation...');
+                await waitForTransactionReceipt(state.walletConfig, {
+                    hash: hash,
+                    chainId: BASE_CHAIN_ID
+                });
 
                 console.log('✅ Transaction confirmed!');
 
@@ -1168,34 +1085,26 @@
         // Like/Unlike post
         async function toggleLike(postId, hasLiked) {
             try {
-                let hash;
-                if (state.walletConfig) {
-                    hash = hasLiked 
-                        ? await writeContract(state.walletConfig, {
-                            address: CONTRACT_ADDRESS,
-                            abi: CONTRACT_ABI,
-                            functionName: 'unlikePost',
-                            args: [postId],
-                            chainId: BASE_CHAIN_ID
-                        })
-                        : await writeContract(state.walletConfig, {
-                            address: CONTRACT_ADDRESS,
-                            abi: CONTRACT_ABI,
-                            functionName: 'likePost',
-                            args: [postId],
-                            chainId: BASE_CHAIN_ID
-                        });
-                        
-                    await waitForTransactionReceipt(state.walletConfig, {
-                        hash: hash,
+                const hash = hasLiked 
+                    ? await writeContract(state.walletConfig, {
+                        address: CONTRACT_ADDRESS,
+                        abi: CONTRACT_ABI,
+                        functionName: 'unlikePost',
+                        args: [postId],
+                        chainId: BASE_CHAIN_ID
+                    })
+                    : await writeContract(state.walletConfig, {
+                        address: CONTRACT_ADDRESS,
+                        abi: CONTRACT_ABI,
+                        functionName: 'likePost',
+                        args: [postId],
                         chainId: BASE_CHAIN_ID
                     });
-                } else {
-                    const tx = hasLiked 
-                        ? await state.contract.unlikePost(postId)
-                        : await state.contract.likePost(postId);
-                    await tx.wait();
-                }
+                    
+                await waitForTransactionReceipt(state.walletConfig, {
+                    hash: hash,
+                    chainId: BASE_CHAIN_ID
+                });
                 
                 await loadPosts();
                 if (state.currentView === 'profile') {
@@ -1262,13 +1171,11 @@
                         </p>
                     </header>
                     <div class="connect-wallet-section">
-                        <h2>Connect Wallet</h2>
+                        <h2>Connecting Wallet...</h2>
                         <p style="margin: 20px 0; color: var(--text-secondary);">
-                            Connect your wallet to start sharing
+                            Please wait while we connect your wallet
                         </p>
-                        <button class="post-button" onclick="window.location.reload()">
-                            Connect Wallet
-                        </button>
+                        <div class="loading-spinner"></div>
                     </div>
                 </div>
             `;
@@ -1500,13 +1407,21 @@
                     return;
                 }
                 
-                if (typeof window.ethers === 'undefined') {
-                    console.error('❌ Ethers.js not loaded');
-                    renderSetupWarning();
-                    return;
+                const isFarcaster = await initializeFarcaster();
+                
+                if (isFarcaster) {
+                    await fetchFarcasterProfile();
                 }
                 
-                await initializeFarcaster();
+                // Try to add mini app
+                try {
+                    if (sdk?.actions?.addMiniApp) {
+                        await sdk.actions.addMiniApp();
+                        console.log('✅ Mini app added');
+                    }
+                } catch (miniAppError) {
+                    console.log('⚠️ Could not add mini app (optional):', miniAppError.message);
+                }
                 
                 console.log('✅ App initialization complete');
             } catch (err) {
@@ -1515,14 +1430,6 @@
             }
         })();
 
-        // Listen for account changes
-        if (window.ethereum) {
-            window.ethereum.on('accountsChanged', (accounts) => {
-                if (accounts.length > 0) {
-                    window.location.reload();
-                }
-            });
-        }
     </script>
 </body>
 </html>
