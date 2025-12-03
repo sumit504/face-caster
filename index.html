@@ -458,8 +458,9 @@
         }
 
         .post-time {
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             color: var(--text-secondary);
+            margin-top: 2px;
         }
 
         .post-image {
@@ -475,9 +476,11 @@
         }
 
         .post-caption {
-            margin-bottom: 16px;
-            font-size: 1.05rem;
+            font-size: 1.2rem;
+            font-weight: 700;
             line-height: 1.6;
+            margin-bottom: 16px;
+            color: var(--text-primary);
         }
 
         .post-actions {
@@ -695,6 +698,7 @@
             loading: false,
             imageFile: null,
             imagePreview: null,
+            currentCaption: '', // ADDED: Store caption
             fid: null,
             userProfile: null,
             walletConfig: null,
@@ -753,7 +757,7 @@
             }
         }
 
-        // Fetch Farcaster profile for any address - NEW FUNCTION
+        // Fetch Farcaster profile for any address
         async function fetchProfileByAddress(address) {
             try {
                 // Check cache first
@@ -842,7 +846,7 @@
             }
         }
 
-        // Load posts from blockchain - UPDATED TO FETCH PROFILES
+        // Load posts from blockchain
         async function loadPosts() {
             try {
                 if (!state.walletConfig) return;
@@ -880,7 +884,7 @@
                             chainId: BASE_CHAIN_ID
                         }) : false;
 
-                        // Fetch Farcaster profile for this user - NEW
+                        // Fetch Farcaster profile for this user
                         const authorAddress = postData[1] || postData.author || '';
                         const fcProfile = await fetchProfileByAddress(authorAddress);
 
@@ -943,7 +947,7 @@
             }
         }
 
-        // View user profile - UPDATED TO FETCH PROFILES
+        // View user profile
         async function viewUserProfile(address) {
             try {
                 state.currentView = 'profile';
@@ -978,7 +982,7 @@
                             chainId: BASE_CHAIN_ID
                         }) : false;
 
-                        // Fetch Farcaster profile for this user - NEW
+                        // Fetch Farcaster profile for this user
                         const authorAddress = postData[1] || postData.author || '';
                         const fcProfile = await fetchProfileByAddress(authorAddress);
 
@@ -1070,6 +1074,14 @@
             }
         }
 
+        // Save caption to state
+        function saveCaptionToState() {
+            const captionInput = document.getElementById('caption-input');
+            if (captionInput) {
+                state.currentCaption = captionInput.value || '';
+            }
+        }
+
         // Create post
         async function createPost() {
             if (!state.imageFile) {
@@ -1083,14 +1095,17 @@
             }
 
             try {
+                // FIXED: Save caption from textarea before state changes
+                saveCaptionToState();
+                const caption = state.currentCaption;
+                
                 state.loading = true;
                 renderApp();
 
                 console.log('Starting IPFS upload with Pinata...');
                 const ipfsHash = await uploadToPinata(state.imageFile);
                 console.log('✅ Uploaded to IPFS:', ipfsHash);
-
-                const caption = document.getElementById('caption-input').value;
+                console.log('📝 Caption to post:', caption);
 
                 console.log('📝 Creating post on blockchain...');
                 
@@ -1113,6 +1128,7 @@
                 // Reset
                 state.imageFile = null;
                 state.imagePreview = null;
+                state.currentCaption = ''; // FIXED: Clear caption
                 state.loading = false;
 
                 // Reload
@@ -1237,7 +1253,7 @@
             `;
         }
 
-        // Render App - UPDATED TO SHOW PFP IMAGES
+        // Render App
         function renderApp() {
             const hasImage = state.imagePreview ? 'has-image' : '';
             const userPostCount = state.userPostCount || 0;
@@ -1318,7 +1334,7 @@
                                         <div class="post-avatar">${postAvatar}</div>
                                         <div class="post-user-info">
                                             <h3>${post.authorName}</h3>
-                                            <div class="post-time">${post.timestamp.toLocaleString()}</div>
+                                            <div class="post-time">${post.timestamp.toLocaleDateString()} ${post.timestamp.toLocaleTimeString()}</div>
                                         </div>
                                     </div>
 
@@ -1391,12 +1407,12 @@
                         <input type="file" id="file-input" accept="image/*" style="display: none;" onchange="handleFileSelect(event)" />
                         
                         ${state.imagePreview ? `
-                            <button class="post-button" style="background: var(--bg-secondary); color: var(--text-secondary); margin-bottom: 16px; padding: 8px 16px; font-size: 0.85rem;" onclick="state.imagePreview = null; state.imageFile = null; renderApp();">
+                            <button class="post-button" style="background: var(--bg-secondary); color: var(--text-secondary); margin-bottom: 16px; padding: 8px 16px; font-size: 0.85rem;" onclick="saveCaptionToState(); state.imagePreview = null; state.imageFile = null; renderApp();">
                                 Change Image
                             </button>
                         ` : ''}
 
-                        <textarea id="caption-input" class="caption-input" placeholder="Write a caption..." ${state.loading ? 'disabled' : ''}></textarea>
+                        <textarea id="caption-input" class="caption-input" placeholder="Write a caption..." ${state.loading ? 'disabled' : ''} oninput="saveCaptionToState()">${state.currentCaption || ''}</textarea>
 
                         <button class="post-button" onclick="createPost()" ${!state.imageFile || userPostCount >= MAX_POSTS || state.loading ? 'disabled' : ''}>
                             ${state.loading ? '⏳ Uploading & Creating...' : '💥 Post to Blockchain'}
@@ -1431,10 +1447,7 @@
                                     <div class="post-avatar">${postAvatar}</div>
                                     <div class="post-user-info">
                                         <h3>${post.authorName}</h3>
-                                        <div class="post-time">${post.timestamp.toLocaleString()}</div>
-                                        <div class="post-time" style="font-size: 0.75rem;">
-                                            ${post.author.slice(0, 6)}...${post.author.slice(-4)}
-                                        </div>
+                                        <div class="post-time">${post.timestamp.toLocaleDateString()} ${post.timestamp.toLocaleTimeString()}</div>
                                     </div>
                                 </div>
 
@@ -1470,6 +1483,7 @@
         window.shareToFarcaster = shareToFarcaster;
         window.searchUser = searchUser;
         window.viewUserProfile = viewUserProfile;
+        window.saveCaptionToState = saveCaptionToState;
         window.state = state;
 
         // Initialize
