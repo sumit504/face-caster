@@ -1329,18 +1329,21 @@
                                     : post.authorName[0];
                                 
                                 return `
-                                <article class="post-card">
-                                    <div class="post-header">
-                                        <div class="post-avatar">${postAvatar}</div>
-                                        <div class="post-user-info">
-                                            <h3>${post.authorName}</h3>
-                                            <div class="post-time">${post.timestamp.toLocaleDateString()} ${post.timestamp.toLocaleTimeString()}</div>
-                                        </div>
-                                    </div>
+       <article class="post-card">
+    <div class="post-header" onclick="viewUserProfile('${post.author}')">
+        <div class="post-avatar">${postAvatar}</div>
+        <div class="post-user-info">
+            <h3>${post.authorName}</h3>
+            <div class="post-time">${post.timestamp.toLocaleDateString()} ${post.timestamp.toLocaleTimeString()}</div>
+        </div>
+    </div>
 
-                                    <img src="${getImageUrl(post.ipfsHash)}" alt="Post" class="post-image" />
+    ${post.caption ? `<div class="post-content" style="padding-bottom: 0;"><p class="post-caption">${post.caption}</p></div>` : ''}
 
-                                    <div class="post-content">
+    <img src="${getImageUrl(post.ipfsHash)}" alt="Post" class="post-image" />
+
+    <div class="post-content">
+        <div class="post-actions">
                                         ${post.caption ? `<p class="post-caption">${post.caption}</p>` : ''}
 
                                         <div class="post-actions">
@@ -1442,21 +1445,21 @@
                                 : post.authorName[0];
                             
                             return `
-                            <article class="post-card">
-                                <div class="post-header" onclick="viewUserProfile('${post.author}')">
-                                    <div class="post-avatar">${postAvatar}</div>
-                                    <div class="post-user-info">
-                                        <h3>${post.authorName}</h3>
-                                        <div class="post-time">${post.timestamp.toLocaleDateString()} ${post.timestamp.toLocaleTimeString()}</div>
-                                    </div>
-                                </div>
+   <article class="post-card">
+    <div class="post-header">
+        <div class="post-avatar">${postAvatar}</div>
+        <div class="post-user-info">
+            <h3>${post.authorName}</h3>
+            <div class="post-time">${post.timestamp.toLocaleDateString()} ${post.timestamp.toLocaleTimeString()}</div>
+        </div>
+    </div>
 
-                                <img src="${getImageUrl(post.ipfsHash)}" alt="Post" class="post-image" />
+    ${post.caption ? `<div class="post-content" style="padding-bottom: 0;"><p class="post-caption">${post.caption}</p></div>` : ''}
 
-                                <div class="post-content">
-                                    ${post.caption ? `<p class="post-caption">${post.caption}</p>` : ''}
+    <img src="${getImageUrl(post.ipfsHash)}" alt="Post" class="post-image" />
 
-                                    <div class="post-actions">
+    <div class="post-content">
+        <div class="post-actions">
                                         <button class="action-button ${post.hasLiked ? 'liked' : ''}" onclick="toggleLike('${post.id}', ${post.hasLiked})">
                                             <span>${post.hasLiked ? '♥' : '♡'}</span>
                                             <span>${post.likes} ${post.likes === 1 ? 'like' : 'likes'}</span>
