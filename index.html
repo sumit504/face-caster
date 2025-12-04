@@ -1583,9 +1583,7 @@
                                 Search
                             </button>
                         </div>
-                        <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 8px;">
-                            💡 Tip: Search by FID (e.g., 513318), username (e.g., linda), or address
-                        </p>
+                 
                     </section>
 
                     <section class="create-post-section">
@@ -1611,7 +1609,7 @@
                         <textarea id="caption-input" class="caption-input" placeholder="Write a caption..." ${state.loading ? 'disabled' : ''} oninput="saveCaptionToState()">${state.currentCaption || ''}</textarea>
 
                         <button class="post-button" onclick="createPost()" ${!state.imageFile || userPostCount >= MAX_POSTS || state.loading || !state.fid ? 'disabled' : ''}>
-                            ${state.loading ? '⏳ Posting...' : '🔥 Post to Blockchain'}
+                            ${state.loading ? '⏳ Posting...' : ' Post to Face Caster '}
                         </button>
                         
                         ${!state.fid ? `
