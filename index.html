@@ -1606,7 +1606,7 @@
                             </button>
                         ` : ''}
 
-                        <textarea id="caption-input" class="caption-input" placeholder="Write a caption..." ${state.loading ? 'disabled' : ''} oninput="saveCaptionToState()">${state.currentCaption || ''}</textarea>
+                        <textarea id="caption-input" class="caption-input" placeholder="Just joined facecaster..." ${state.loading ? 'disabled' : ''} oninput="saveCaptionToState()">${state.currentCaption || ''}</textarea>
 
                         <button class="post-button" onclick="createPost()" ${!state.imageFile || userPostCount >= MAX_POSTS || state.loading || !state.fid ? 'disabled' : ''}>
                             ${state.loading ? '⏳ Posting...' : ' Post to Face Caster '}
