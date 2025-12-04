@@ -1375,25 +1375,23 @@
         }
 
         // Share to Farcaster
-        async function shareToFarcaster(postId, imageUrl) {
-            try {
-                const shareText = `Check out my post on Face-caster! 📸\n\nDecentralized social media on Base onchain.`;
-                const encodedText = encodeURIComponent(shareText);
-                const encodedImage = encodeURIComponent(imageUrl);
-                const frameUrl = encodeURIComponent('https://face-caster.vercel.app');
-                
-                const castUrl = `https://warpcast.com/~/compose?text=${encodedText}&embeds[]=${encodedImage}&embeds[]=${frameUrl}`;
-                
-                if (sdk?.actions?.openUrl) {
-                    await sdk.actions.openUrl(castUrl);
-                } else {
-                    window.open(castUrl, '_blank');
-                }
-            } catch (error) {
-                console.error('Share error:', error);
-            }
+async function shareToFarcaster(postId, imageUrl) {
+    try {
+        const shareText = `Just posted on Face Caster! \n\nCheck out the onchain social network on farcaster \n\n👉 Join Facecaster`;
+        const encodedText = encodeURIComponent(shareText);
+        const frameUrl = encodeURIComponent('https://face-caster.vercel.app');
+        
+        const castUrl = `https://farcaster.xyz/~/compose?text=${encodedText}&embeds[]=${frameUrl}`;
+        
+        if (sdk?.actions?.openUrl) {
+            await sdk.actions.openUrl(castUrl);
+        } else {
+            window.open(castUrl, '_blank');
         }
-
+    } catch (error) {
+        console.error('Share error:', error);
+    }
+}
         // Get image URL from Pinata gateway
         function getImageUrl(ipfsHash) {
             return `https://gateway.pinata.cloud/ipfs/${ipfsHash}`;
@@ -1672,8 +1670,8 @@
                                             <span>${post.likes}</span>
                                         </button>
                                         <button class="action-button" onclick="shareToFarcaster('${post.id}', '${getImageUrl(post.ipfsHash)}')">
-                                            <span>🔗</span>
-                                            <span>Share</span>
+                                            <span>✅</span>
+                                            <span>Share on Farcaster</span>
                                         </button>
                                     </div>
                                 </div>
