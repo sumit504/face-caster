@@ -208,19 +208,18 @@
             font-weight: 600;
         }
 
-.post-limit-indicator {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: transparent;
-    padding: 6px 14px;
-    border-radius: 18px;
-    margin-top: 10px;
-    font-family: 'Poppins', sans-serif;
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: rgba(255, 255, 255, 0.9);
-}
+        .post-limit-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 107, 107, 0.1);
+            padding: 6px 14px;
+            border-radius: 18px;
+            margin-top: 10px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
 
         .post-limit-indicator .dot {
             width: 6px;
@@ -360,14 +359,13 @@
             box-shadow: 0 4px 12px var(--shadow);
         }
 
-   .post-button:disabled {
-    background: #d0d0d0 !important;
-    color: #808080 !important;
-    cursor: not-allowed;
-    opacity: 1;
-    box-shadow: none;
-    border: 2px solid #e0e0e0;
-}
+        .post-button:disabled {
+            background: #d0d0d0 !important;
+            color: #808080 !important;
+            cursor: not-allowed;
+            opacity: 1;
+            box-shadow: none;
+        }
 
         .error-message {
             background: rgba(255, 68, 68, 0.1);
@@ -630,108 +628,32 @@
         import { base } from 'https://esm.sh/@wagmi/core/chains';
         import { farcasterMiniApp } from 'https://esm.sh/@farcaster/miniapp-wagmi-connector';
         
-        // Configuration
-        const CONTRACT_ADDRESS = "0xe69e8dB0F9bb1DBA39ed15201B50fE10BCa7A4c0"; // UPDATE THIS WITH YOUR NEW CONTRACT
-        const PINATA_JWT = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiIzNWVlZTc5Zi0xMzU5LTRmNDEtOTkyMC1mMzUwMmI1NWQwOGQiLCJlbWFpbCI6InN1bWl0am9iNzAzQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJwaW5fcG9saWN5Ijp7InJlZ2lvbnMiOlt7ImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxLCJpZCI6IkZSQTEifSx7ImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxLCJpZCI6Ik5ZQzEifV0sInZlcnNpb24iOjF9LCJtZmFfZW5hYmxlZCI6ZmFsc2UsInN0YXR1cyI6IkFDVElWRSJ9LCJhdXRoZW50aWNhdGlvblR5cGUiOiJzY29wZWRLZXkiLCJzY29wZWRLZXlLZXkiOiI0YzRmNjZhYzlmY2RkNTk2MjBmNiIsInNjb3BlZEtleVNlY3JldCI6IjFhYTEwNDBjNGIwMDdjOWQ4ZWFlMzliODE5Yzg2OGIyZjliMDM2MTY4ZGY1YmFlYjM0OGI3YTliODE1MTI4MjAiLCJleHAiOjE3OTM0Nzk2MTR9.p1NEgDx4aPs71Uol63ZzUVj3XgfRCgsRgGuFDssJ5qY";
+        // Configuration - UPDATE THESE
+        const CONTRACT_ADDRESS = "0x6d79E965eaa30ed1296D5916F1dfA6fD1bd347Ff"; // UPDATE THIS
+        const PINATA_JWT = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiIzNWVlZTc5Zi0xMzU5LTRmNDEtOTkyMC1mMzUwMmI1NWQwOGQiLCJlbWFpbCI6InN1bWl0am9iNzAzQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJwaW5fcG9saWN5Ijp7InJlZ2lvbnMiOlt7ImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxLCJpZCI6IkZSQTEifSx7ImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxLCJpZCI6Ik5ZQzEifV0sInZlcnNpb24iOjF9LCJtZmFfZW5hYmxlZCI6ZmFsc2UsInN0YXR1cyI6IkFDVElWRSJ9LCJhdXRoZW50aWNhdGlvblR5cGUiOiJzY29wZWRLZXkiLCJzY29wZWRLZXlLZXkiOiI0YzRmNjZhYzlmY2RkNTk2MjBmNiIsInNjb3BlZEtleVNlY3JldCI6IjFhYTEwNDBjNGIwMDdjOWQ4ZWFlMzliODE5Yzg2OGIyZjliMDM2MTY4ZGY1YmFlYjM0OGI3YTliODE1MTI4MjAiLCJleHAiOjE3OTM0Nzk2MTR9.p1NEgDx4aPs71Uol63ZzUVj3XgfRCgsRgGuFDssJ5qY"; // UPDATE THIS
         const NEYNAR_API_KEY = "8BF81B8C-C491-4735-8E1C-FC491FF048D4";
         const BASE_CHAIN_ID = 8453;
         const MAX_POSTS = 10;
         
-        // Contract ABI with FID support
+        // Contract ABI
         const CONTRACT_ABI = [
-            {
-                "inputs": [
-                    {"internalType": "string", "name": "_ipfsHash", "type": "string"},
-                    {"internalType": "string", "name": "_caption", "type": "string"},
-                    {"internalType": "uint256", "name": "_fid", "type": "uint256"}
-                ],
-                "name": "createPost",
-                "outputs": [],
-                "stateMutability": "nonpayable",
-                "type": "function"
-            },
-            {
-                "inputs": [{"internalType": "uint256", "name": "_postId", "type": "uint256"}],
-                "name": "likePost",
-                "outputs": [],
-                "stateMutability": "nonpayable",
-                "type": "function"
-            },
-            {
-                "inputs": [{"internalType": "uint256", "name": "_postId", "type": "uint256"}],
-                "name": "unlikePost",
-                "outputs": [],
-                "stateMutability": "nonpayable",
-                "type": "function"
-            },
-            {
-                "inputs": [{"internalType": "string", "name": "_name", "type": "string"}],
-                "name": "setUserName",
-                "outputs": [],
-                "stateMutability": "nonpayable",
-                "type": "function"
-            },
-            {
-                "inputs": [{"internalType": "uint256", "name": "_fid", "type": "uint256"}],
-                "name": "setUserFid",
-                "outputs": [],
-                "stateMutability": "nonpayable",
-                "type": "function"
-            },
-            {
-                "inputs": [],
-                "name": "getAllPostIds",
-                "outputs": [{"internalType": "uint256[]", "name": "", "type": "uint256[]"}],
-                "stateMutability": "view",
-                "type": "function"
-            },
-            {
-                "inputs": [{"internalType": "uint256", "name": "_postId", "type": "uint256"}],
-                "name": "getPost",
-                "outputs": [
-                    {"internalType": "uint256", "name": "id", "type": "uint256"},
-                    {"internalType": "address", "name": "author", "type": "address"},
-                    {"internalType": "uint256", "name": "authorFid", "type": "uint256"},
-                    {"internalType": "string", "name": "authorName", "type": "string"},
-                    {"internalType": "string", "name": "ipfsHash", "type": "string"},
-                    {"internalType": "string", "name": "caption", "type": "string"},
-                    {"internalType": "uint256", "name": "timestamp", "type": "uint256"},
-                    {"internalType": "uint256", "name": "likes", "type": "uint256"}
-                ],
-                "stateMutability": "view",
-                "type": "function"
-            },
-            {
-                "inputs": [
-                    {"internalType": "uint256", "name": "_postId", "type": "uint256"},
-                    {"internalType": "address", "name": "_user", "type": "address"}
-                ],
-                "name": "hasUserLiked",
-                "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
-                "stateMutability": "view",
-                "type": "function"
-            },
-            {
-                "inputs": [],
-                "name": "getTotalPosts",
-                "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
-                "stateMutability": "view",
-                "type": "function"
-            },
-            {
-                "inputs": [{"internalType": "address", "name": "_user", "type": "address"}],
-                "name": "getUserPosts",
-                "outputs": [{"internalType": "uint256[]", "name": "postIds", "type": "uint256[]"}],
-                "stateMutability": "view",
-                "type": "function"
-            },
-            {
-                "inputs": [{"internalType": "address", "name": "_user", "type": "address"}],
-                "name": "getUserFid",
-                "outputs": [{"internalType": "uint256", "name": "fid", "type": "uint256"}],
-                "stateMutability": "view",
-                "type": "function"
-            }
+            {"inputs": [{"internalType": "string", "name": "_ipfsHash", "type": "string"}, {"internalType": "string", "name": "_caption", "type": "string"}, {"internalType": "uint256", "name": "_fid", "type": "uint256"}], "name": "createPost", "outputs": [], "stateMutability": "nonpayable", "type": "function"},
+            {"inputs": [{"internalType": "uint256", "name": "_postId", "type": "uint256"}], "name": "likePost", "outputs": [], "stateMutability": "nonpayable", "type": "function"},
+            {"inputs": [{"internalType": "uint256", "name": "_postId", "type": "uint256"}], "name": "unlikePost", "outputs": [], "stateMutability": "nonpayable", "type": "function"},
+            {"inputs": [{"internalType": "string", "name": "_name", "type": "string"}], "name": "setUserName", "outputs": [], "stateMutability": "nonpayable", "type": "function"},
+            {"inputs": [{"internalType": "uint256", "name": "_fid", "type": "uint256"}], "name": "setUserFid", "outputs": [], "stateMutability": "nonpayable", "type": "function"},
+            {"inputs": [], "name": "getAllPostIds", "outputs": [{"internalType": "uint256[]", "name": "", "type": "uint256[]"}], "stateMutability": "view", "type": "function"},
+            {"inputs": [{"internalType": "uint256", "name": "_postId", "type": "uint256"}], "name": "getPost", "outputs": [{"internalType": "uint256", "name": "id", "type": "uint256"}, {"internalType": "address", "name": "author", "type": "address"}, {"internalType": "uint256", "name": "authorFid", "type": "uint256"}, {"internalType": "string", "name": "authorName", "type": "string"}, {"internalType": "string", "name": "ipfsHash", "type": "string"}, {"internalType": "string", "name": "caption", "type": "string"}, {"internalType": "uint256", "name": "timestamp", "type": "uint256"}, {"internalType": "uint256", "name": "likes", "type": "uint256"}], "stateMutability": "view", "type": "function"},
+            {"inputs": [{"internalType": "uint256", "name": "_postId", "type": "uint256"}, {"internalType": "address", "name": "_user", "type": "address"}], "name": "hasUserLiked", "outputs": [{"internalType": "bool", "name": "", "type": "bool"}], "stateMutability": "view", "type": "function"},
+            {"inputs": [], "name": "getTotalPosts", "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}], "stateMutability": "view", "type": "function"},
+            {"inputs": [{"internalType": "address", "name": "_user", "type": "address"}], "name": "getUserPosts", "outputs": [{"internalType": "uint256[]", "name": "postIds", "type": "uint256[]"}], "stateMutability": "view", "type": "function"},
+            {"inputs": [{"internalType": "address", "name": "_user", "type": "address"}], "name": "getUserFid", "outputs": [{"internalType": "uint256", "name": "fid", "type": "uint256"}], "stateMutability": "view", "type": "function"},
+            {"inputs": [{"internalType": "uint256", "name": "_fid", "type": "uint256"}], "name": "getUserPostsByFid", "outputs": [{"internalType": "uint256[]", "name": "postIds", "type": "uint256[]"}], "stateMutability": "view", "type": "function"},
+            {"inputs": [{"internalType": "uint256", "name": "_fid", "type": "uint256"}], "name": "getPostCountByFid", "outputs": [{"internalType": "uint256", "name": "count", "type": "uint256"}], "stateMutability": "view", "type": "function"},
+            {"inputs": [], "name": "owner", "outputs": [{"internalType": "address", "name": "", "type": "address"}], "stateMutability": "view", "type": "function"},
+            {"inputs": [], "name": "getActivePostIds", "outputs": [{"internalType": "uint256[]", "name": "", "type": "uint256[]"}], "stateMutability": "view", "type": "function"},
+            {"inputs": [{"internalType": "uint256", "name": "_postId", "type": "uint256"}], "name": "adminDeletePost", "outputs": [], "stateMutability": "nonpayable", "type": "function"},
+            {"inputs": [{"internalType": "uint256", "name": "_postId", "type": "uint256"}], "name": "deletePost", "outputs": [], "stateMutability": "nonpayable", "type": "function"}
         ];
 
         // App State
@@ -748,12 +670,12 @@
             walletConfig: null,
             currentView: 'feed',
             viewingAddress: null,
-            viewingProfile: null, // ADD THIS LINE
+            viewingProfile: null,
             userPostCount: 0,
             isWalletConnected: false
         };
 
-        // Profile cache (indexed by FID)
+        // Profile cache
         let profileCache = {};
 
         // Initialize Farcaster SDK
@@ -947,6 +869,23 @@
                 const posts = [];
                 let userPostCount = 0;
 
+                // Get user's post count by FID if available
+                if (state.fid && state.fid > 0) {
+                    try {
+                        userPostCount = await readContract(state.walletConfig, {
+                            address: CONTRACT_ADDRESS,
+                            abi: CONTRACT_ABI,
+                            functionName: 'getPostCountByFid',
+                            args: [state.fid],
+                            chainId: BASE_CHAIN_ID
+                        });
+                        userPostCount = Number(userPostCount);
+                        console.log(`✅ User has ${userPostCount} posts (by FID ${state.fid})`);
+                    } catch (error) {
+                        console.log('⚠️ Could not get post count by FID');
+                    }
+                }
+
                 for (let id of postIds) {
                     try {
                         const postData = await readContract(state.walletConfig, {
@@ -965,13 +904,11 @@
                             chainId: BASE_CHAIN_ID
                         }) : false;
 
-                        // Extract data from post
                         const authorAddress = postData[1] || postData.author || '';
                         const authorFid = Number(postData[2] || postData.authorFid || 0);
                         
                         console.log(`📝 Post ${id}: FID=${authorFid}, Address=${authorAddress.slice(0,6)}...`);
                         
-                        // Fetch profile by FID
                         let fcProfile = null;
                         if (authorFid && authorFid > 0) {
                             fcProfile = await fetchProfileByFid(authorFid);
@@ -993,9 +930,6 @@
                         
                         posts.push(post);
                         
-                        if (state.account && post.author.toLowerCase() === state.account.toLowerCase()) {
-                            userPostCount++;
-                        }
                     } catch (postError) {
                         console.error(`❌ Error loading post ${id}:`, postError);
                         continue;
@@ -1025,14 +959,12 @@
                 
                 console.log('🔎 Searching for:', searchTerm);
                 
-                // Show loading state
                 const searchButton = document.querySelector('.search-button');
                 const originalText = searchButton.textContent;
                 searchButton.textContent = 'Searching...';
                 searchButton.disabled = true;
                 
                 try {
-                    // Check if it's a FID (numeric only)
                     if (/^\d+$/.test(searchTerm)) {
                         console.log('Searching by FID:', searchTerm);
                         const fid = parseInt(searchTerm);
@@ -1046,22 +978,18 @@
                             alert('No verified address found for this FID');
                         }
                     }
-                    // Check if it's an Ethereum address
                     else if (searchTerm.toLowerCase().startsWith('0x') && searchTerm.length === 42) {
                         console.log('Searching by address:', searchTerm);
                         await viewUserProfile(searchTerm);
                     } 
-                    // Search by username
                     else {
                         console.log('Searching by username:', searchTerm);
                         
-                        // First, try to find in loaded posts
                         let user = state.posts.find(post => 
                             post.authorName.toLowerCase() === searchTerm.toLowerCase() ||
                             (post.authorUsername && post.authorUsername.toLowerCase() === searchTerm.toLowerCase())
                         );
                         
-                        // If not found in posts, search via API
                         if (!user) {
                             console.log('Not found in posts, searching via API...');
                             const profile = await searchByUsername(searchTerm);
@@ -1069,7 +997,6 @@
                             if (profile) {
                                 console.log('Found profile:', profile);
                                 
-                                // Get the verified address
                                 if (profile.verified_addresses && profile.verified_addresses.eth_addresses.length > 0) {
                                     await viewUserProfile(profile.verified_addresses.eth_addresses[0]);
                                 } else if (profile.custody_address) {
@@ -1081,12 +1008,10 @@
                                 alert('User not found. Try searching by:\n• FID (number like 513318)\n• Address (0x...)\n• Exact username');
                             }
                         } else {
-                            // Found in loaded posts
                             await viewUserProfile(user.author);
                         }
                     }
                 } finally {
-                    // Restore button state
                     searchButton.textContent = originalText;
                     searchButton.disabled = false;
                 }
@@ -1094,7 +1019,6 @@
                 console.error('Search error:', error);
                 alert('Search failed. Please try again.');
                 
-                // Restore button state on error
                 const searchButton = document.querySelector('.search-button');
                 if (searchButton) {
                     searchButton.textContent = 'Search';
@@ -1104,136 +1028,152 @@
         }
 
         // View user profile
-// View user profile - FIXED VERSION
-async function viewUserProfile(address) {
-    try {
-        console.log('👤 Viewing profile for:', address);
-        state.currentView = 'profile';
-        state.viewingAddress = address;
-        state.loading = true;
-        
-        // Initialize viewing profile data
-        state.viewingProfile = null;
-        
-        renderApp();
-        
-        // First, try to get user's FID from contract
-        let userFid = 0;
-        try {
-            userFid = await readContract(state.walletConfig, {
-                address: CONTRACT_ADDRESS,
-                abi: CONTRACT_ABI,
-                functionName: 'getUserFid',
-                args: [address],
-                chainId: BASE_CHAIN_ID
-            });
-            userFid = Number(userFid);
-            console.log('📋 User FID from contract:', userFid);
-        } catch (error) {
-            console.log('⚠️ Could not get FID from contract:', error);
-        }
-        
-        // If no FID from contract, try to get from Neynar by address
-        if (!userFid || userFid === 0) {
-            console.log('🔍 Fetching profile by address from Neynar...');
+        async function viewUserProfile(address) {
             try {
-                const response = await fetch(
-                    `https://api.neynar.com/v2/farcaster/user/bulk-by-address?addresses=${address}`,
-                    {
-                        method: 'GET',
-                        headers: {
-                            'Accept': 'application/json',
-                            'api_key': NEYNAR_API_KEY
+                console.log('👤 Viewing profile for:', address);
+                state.currentView = 'profile';
+                state.viewingAddress = address;
+                state.loading = true;
+                
+                state.viewingProfile = null;
+                
+                renderApp();
+                
+                let userFid = 0;
+                try {
+                    userFid = await readContract(state.walletConfig, {
+                        address: CONTRACT_ADDRESS,
+                        abi: CONTRACT_ABI,
+                        functionName: 'getUserFid',
+                        args: [address],
+                        chainId: BASE_CHAIN_ID
+                    });
+                    userFid = Number(userFid);
+                    console.log('📋 User FID from contract:', userFid);
+                } catch (error) {
+                    console.log('⚠️ Could not get FID from contract:', error);
+                }
+                
+                if (!userFid || userFid === 0) {
+                    console.log('🔍 Fetching profile by address from Neynar...');
+                    try {
+                        const response = await fetch(
+                            `https://api.neynar.com/v2/farcaster/user/bulk-by-address?addresses=${address}`,
+                            {
+                                method: 'GET',
+                                headers: {
+                                    'Accept': 'application/json',
+                                    'api_key': NEYNAR_API_KEY
+                                }
+                            }
+                        );
+                        
+                        if (response.ok) {
+                            const data = await response.json();
+                            if (data[address.toLowerCase()] && data[address.toLowerCase()].length > 0) {
+                                const profile = data[address.toLowerCase()][0];
+                                state.viewingProfile = profile;
+                                userFid = profile.fid;
+                                console.log('✅ Found profile by address:', profile.display_name || profile.username);
+                            }
                         }
-                    }
-                );
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data[address.toLowerCase()] && data[address.toLowerCase()].length > 0) {
-                        const profile = data[address.toLowerCase()][0];
-                        state.viewingProfile = profile;
-                        userFid = profile.fid;
-                        console.log('✅ Found profile by address:', profile.display_name || profile.username);
+                    } catch (error) {
+                        console.error('Error fetching profile by address:', error);
                     }
                 }
+                
+                if (userFid && userFid > 0 && !state.viewingProfile) {
+                    state.viewingProfile = await fetchProfileByFid(userFid);
+                }
+                
+                let userPostIds = [];
+                if (userFid && userFid > 0) {
+                    try {
+                        userPostIds = await readContract(state.walletConfig, {
+                            address: CONTRACT_ADDRESS,
+                            abi: CONTRACT_ABI,
+                            functionName: 'getUserPostsByFid',
+                            args: [userFid],
+                            chainId: BASE_CHAIN_ID
+                        });
+                        console.log(`📝 Found ${userPostIds.length} posts for FID ${userFid}`);
+                    } catch (error) {
+                        console.log('⚠️ Error getting posts by FID, trying by address:', error);
+                        userPostIds = await readContract(state.walletConfig, {
+                            address: CONTRACT_ADDRESS,
+                            abi: CONTRACT_ABI,
+                            functionName: 'getUserPosts',
+                            args: [address],
+                            chainId: BASE_CHAIN_ID
+                        });
+                    }
+                } else {
+                    userPostIds = await readContract(state.walletConfig, {
+                        address: CONTRACT_ADDRESS,
+                        abi: CONTRACT_ABI,
+                        functionName: 'getUserPosts',
+                        args: [address],
+                        chainId: BASE_CHAIN_ID
+                    });
+                }
+                
+                const userPosts = [];
+                for (let id of userPostIds) {
+                    try {
+                        const postData = await readContract(state.walletConfig, {
+                            address: CONTRACT_ADDRESS,
+                            abi: CONTRACT_ABI,
+                            functionName: 'getPost',
+                            args: [id],
+                            chainId: BASE_CHAIN_ID
+                        });
+                        
+                        const hasLiked = state.account ? await readContract(state.walletConfig, {
+                            address: CONTRACT_ADDRESS,
+                            abi: CONTRACT_ABI,
+                            functionName: 'hasUserLiked',
+                            args: [id, state.account],
+                            chainId: BASE_CHAIN_ID
+                        }) : false;
+
+                        const authorAddress = postData[1] || postData.author || '';
+                        const authorFid = Number(postData[2] || postData.authorFid || 0);
+                        
+                        let fcProfile = state.viewingProfile;
+                        if (!fcProfile && authorFid && authorFid > 0) {
+                            fcProfile = await fetchProfileByFid(authorFid);
+                        }
+
+                        userPosts.push({
+                            id: (postData[0] || postData.id)?.toString() || id.toString(),
+                            author: authorAddress,
+                            authorFid: authorFid,
+                            authorName: fcProfile?.display_name || fcProfile?.username || postData[3] || postData.authorName || 'Anonymous',
+                            authorPfp: fcProfile?.pfp_url || null,
+                            authorUsername: fcProfile?.username || null,
+                            ipfsHash: postData[4] || postData.ipfsHash || '',
+                            caption: postData[5] || postData.caption || '',
+                            timestamp: new Date((Number(postData[6] || postData.timestamp || 0)) * 1000),
+                            likes: Number(postData[7] || postData.likes || 0),
+                            hasLiked: hasLiked
+                        });
+                    } catch (postError) {
+                        console.error(`Error loading post ${id}:`, postError);
+                        continue;
+                    }
+                }
+                
+                state.userPosts = userPosts.reverse();
+                state.loading = false;
+                renderApp();
             } catch (error) {
-                console.error('Error fetching profile by address:', error);
+                console.error('Error viewing profile:', error);
+                state.loading = false;
+                alert('Failed to load user profile');
+                state.currentView = 'feed';
+                renderApp();
             }
         }
-        
-        // If we have FID, fetch full profile
-        if (userFid && userFid > 0 && !state.viewingProfile) {
-            state.viewingProfile = await fetchProfileByFid(userFid);
-        }
-        
-        // Get user's posts
-        const userPostIds = await readContract(state.walletConfig, {
-            address: CONTRACT_ADDRESS,
-            abi: CONTRACT_ABI,
-            functionName: 'getUserPosts',
-            args: [address],
-            chainId: BASE_CHAIN_ID
-        });
-        
-        const userPosts = [];
-        for (let id of userPostIds) {
-            try {
-                const postData = await readContract(state.walletConfig, {
-                    address: CONTRACT_ADDRESS,
-                    abi: CONTRACT_ABI,
-                    functionName: 'getPost',
-                    args: [id],
-                    chainId: BASE_CHAIN_ID
-                });
-                
-                const hasLiked = state.account ? await readContract(state.walletConfig, {
-                    address: CONTRACT_ADDRESS,
-                    abi: CONTRACT_ABI,
-                    functionName: 'hasUserLiked',
-                    args: [id, state.account],
-                    chainId: BASE_CHAIN_ID
-                }) : false;
-
-                const authorAddress = postData[1] || postData.author || '';
-                const authorFid = Number(postData[2] || postData.authorFid || 0);
-                
-                // Fetch by FID
-                let fcProfile = state.viewingProfile;
-                if (!fcProfile && authorFid && authorFid > 0) {
-                    fcProfile = await fetchProfileByFid(authorFid);
-                }
-
-                userPosts.push({
-                    id: (postData[0] || postData.id)?.toString() || id.toString(),
-                    author: authorAddress,
-                    authorFid: authorFid,
-                    authorName: fcProfile?.display_name || fcProfile?.username || postData[3] || postData.authorName || 'Anonymous',
-                    authorPfp: fcProfile?.pfp_url || null,
-                    authorUsername: fcProfile?.username || null,
-                    ipfsHash: postData[4] || postData.ipfsHash || '',
-                    caption: postData[5] || postData.caption || '',
-                    timestamp: new Date((Number(postData[6] || postData.timestamp || 0)) * 1000),
-                    likes: Number(postData[7] || postData.likes || 0),
-                    hasLiked: hasLiked
-                });
-            } catch (postError) {
-                console.error(`Error loading post ${id}:`, postError);
-                continue;
-            }
-        }
-        
-        state.userPosts = userPosts.reverse();
-        state.loading = false;
-        renderApp();
-    } catch (error) {
-        console.error('Error viewing profile:', error);
-        state.loading = false;
-        alert('Failed to load user profile');
-        state.currentView = 'feed';
-        renderApp();
-    }
-}
 
         // Upload to Pinata IPFS
         async function uploadToPinata(file) {
@@ -1302,7 +1242,7 @@ async function viewUserProfile(address) {
             }
         }
 
-        // Create post
+        // Create post - FIXED WITH AUTO-REFRESH
         async function createPost() {
             if (!state.imageFile) {
                 alert('Please select an image');
@@ -1314,7 +1254,6 @@ async function viewUserProfile(address) {
                 return;
             }
 
-            // Check FID
             if (!state.fid || state.fid === 0) {
                 alert('⚠️ Please wait for Farcaster profile to load, or make sure you are logged in to Warpcast');
                 return;
@@ -1333,7 +1272,6 @@ async function viewUserProfile(address) {
 
                 console.log('📝 Creating post on blockchain with FID:', state.fid);
                 
-                // Pass FID to contract
                 const hash = await writeContract(state.walletConfig, {
                     address: CONTRACT_ADDRESS,
                     abi: CONTRACT_ABI,
@@ -1350,15 +1288,29 @@ async function viewUserProfile(address) {
 
                 console.log('✅ Transaction confirmed!');
 
+                // Clear form
                 state.imageFile = null;
                 state.imagePreview = null;
                 state.currentCaption = '';
-                state.loading = false;
+                
+                const fileInput = document.getElementById('file-input');
+                if (fileInput) {
+                    fileInput.value = '';
+                }
 
+                // CRITICAL: Reload posts from blockchain
+                console.log('🔄 Reloading posts from blockchain...');
                 await loadPosts();
+                
+                // CRITICAL: Re-render the app
+                state.loading = false;
                 renderApp();
                 
                 alert('Post created successfully! 🎉');
+                
+                // Scroll to top to see new post
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                
             } catch (err) {
                 console.error('Error creating post:', err);
                 state.loading = false;
@@ -1497,113 +1449,112 @@ async function viewUserProfile(address) {
                 `;
             }
             
-// Render profile view - COMPLETE FIXED VERSION
-if (state.currentView === 'profile') {
-    // Use viewingProfile if available, otherwise fall back to first post data
-    let profileData = state.viewingProfile;
-    
-    if (!profileData && state.userPosts.length > 0) {
-        const firstPost = state.userPosts[0];
-        profileData = {
-            display_name: firstPost.authorName,
-            username: firstPost.authorUsername,
-            pfp_url: firstPost.authorPfp,
-            fid: firstPost.authorFid
-        };
-    }
-    
-    // Fallback to generic user if no data available
-    const profileName = profileData?.display_name || profileData?.username || 'User';
-    const profilePfp = profileData?.pfp_url;
-    const profileFid = profileData?.fid || 0;
-    const profileUsername = profileData?.username || null;
-    const profileBio = profileData?.profile?.bio?.text || '';
-    
-    const profileAvatar = profilePfp 
-        ? `<img src="${profilePfp}" alt="Profile">`
-        : (profileName ? profileName[0].toUpperCase() : 'U');
-    
-    document.getElementById('root').innerHTML = `
-        <div class="app-container">
-            <header class="header">
-                <h1>Face Caster</h1>
-                <p>Decentralized real face onchain social network.</p>
-            </header>
+            // Render profile view
+            if (state.currentView === 'profile') {
+                let profileData = state.viewingProfile;
+                
+                if (!profileData && state.userPosts.length > 0) {
+                    const firstPost = state.userPosts[0];
+                    profileData = {
+                        display_name: firstPost.authorName,
+                        username: firstPost.authorUsername,
+                        pfp_url: firstPost.authorPfp,
+                        fid: firstPost.authorFid
+                    };
+                }
+                
+                const profileName = profileData?.display_name || profileData?.username || 'User';
+                const profilePfp = profileData?.pfp_url;
+                const profileFid = profileData?.fid || 0;
+                const profileUsername = profileData?.username || null;
+                const profileBio = profileData?.profile?.bio?.text || '';
+                
+                const profileAvatar = profilePfp 
+                    ? `<img src="${profilePfp}" alt="Profile">`
+                    : (profileName ? profileName[0].toUpperCase() : 'U');
+                
+                document.getElementById('root').innerHTML = `
+                    <div class="app-container">
+                        <header class="header">
+                            <h1>Face Caster</h1>
+                            <p>Decentralized real face onchain social network.</p>
+                        </header>
 
-            <button class="post-button" style="margin-bottom: 24px;" onclick="state.currentView = 'feed'; state.viewingProfile = null; renderApp();">
-                ← Back to Feed
-            </button>
+                        <button class="post-button" style="margin-bottom: 24px;" onclick="state.currentView = 'feed'; state.viewingProfile = null; renderApp();">
+                            ← Back to Feed
+                        </button>
 
-            <div class="profile-card" style="display: block;">
-                <div class="profile-content">
-                    <div class="profile-avatar">${profileAvatar}</div>
-                    <div class="profile-info">
-                        <div class="profile-name">${profileName}</div>
-                        ${profileUsername ? `<div style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 2px; font-weight: 500;">@${profileUsername}</div>` : ''}
-                        <div class="profile-address">FID: ${profileFid}</div>
-                        <div style="margin-top: 4px; color: var(--text-secondary); font-size: 0.75rem;">
-                            ${state.viewingAddress.slice(0, 6)}...${state.viewingAddress.slice(-4)}
-                        </div>
-                        ${profileBio ? `<div style="margin-top: 8px; color: var(--text-primary); font-size: 0.85rem; line-height: 1.4;">${profileBio}</div>` : ''}
-                        <div style="margin-top: 8px; color: var(--text-secondary); font-weight: 600;">
-                            ${state.userPosts.length} ${state.userPosts.length === 1 ? 'post' : 'posts'} on Face Caster
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="feed">
-                ${state.loading ? `
-                    <div class="empty-state">
-                        <div class="loading-spinner"></div>
-                        <p style="margin-top: 20px;">Loading posts...</p>
-                    </div>
-                ` : state.userPosts.length === 0 ? `
-                    <div class="empty-state">
-                        <h3>No posts yet</h3>
-                        <p>This user hasn't posted anything on Face Caster.</p>
-                        ${profileUsername ? `<p style="margin-top: 12px; color: var(--accent);">Follow them on <a href="https://warpcast.com/${profileUsername}" target="_blank" style="color: var(--accent); text-decoration: underline;">Warpcast</a></p>` : ''}
-                    </div>
-                ` : state.userPosts.map(post => {
-                    const postAvatar = post.authorPfp 
-                        ? `<img src="${post.authorPfp}" alt="${post.authorName}">`
-                        : post.authorName[0].toUpperCase();
-                    
-                    return `
-                    <article class="post-card">
-                        <div class="post-header">
-                            <div class="post-avatar">${postAvatar}</div>
-                            <div class="post-user-info">
-                                <h3>${post.authorName}</h3>
-                                <div class="post-fid">FID: ${post.authorFid}</div>
-                                <div class="post-time">${post.timestamp.toLocaleDateString()} • ${post.timestamp.toLocaleTimeString()}</div>
+                        <div class="profile-card" style="display: block;">
+                            <div class="profile-content">
+                                <div class="profile-avatar">${profileAvatar}</div>
+                                <div class="profile-info">
+                                    <div class="profile-name">${profileName}</div>
+                                    ${profileUsername ? `<div style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 2px; font-weight: 500;">@${profileUsername}</div>` : ''}
+                                    <div class="profile-address">FID: ${profileFid}</div>
+                                    <div style="margin-top: 4px; color: var(--text-secondary); font-size: 0.75rem;">
+                                        ${state.viewingAddress.slice(0, 6)}...${state.viewingAddress.slice(-4)}
+                                    </div>
+                                    ${profileBio ? `<div style="margin-top: 8px; color: var(--text-primary); font-size: 0.85rem; line-height: 1.4;">${profileBio}</div>` : ''}
+                                    <div style="margin-top: 8px; color: var(--text-secondary); font-weight: 600;">
+                                        ${state.userPosts.length} ${state.userPosts.length === 1 ? 'post' : 'posts'} on Face Caster
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        ${post.caption ? `<div class="post-content" style="padding-bottom: 0;"><p class="post-caption">${post.caption}</p></div>` : ''}
+                        <div class="feed">
+                            ${state.loading ? `
+                                <div class="empty-state">
+                                    <div class="loading-spinner"></div>
+                                    <p style="margin-top: 20px;">Loading posts...</p>
+                                </div>
+                            ` : state.userPosts.length === 0 ? `
+                                <div class="empty-state">
+                                    <h3>No posts yet</h3>
+                                    <p>This user hasn't posted anything on Face Caster.</p>
+                                    ${profileUsername ? `<p style="margin-top: 12px; color: var(--accent);">Follow them on <a href="https://warpcast.com/${profileUsername}" target="_blank" style="color: var(--accent); text-decoration: underline;">Warpcast</a></p>` : ''}
+                                </div>
+                            ` : state.userPosts.map(post => {
+                                const postAvatar = post.authorPfp 
+                                    ? `<img src="${post.authorPfp}" alt="${post.authorName}">`
+                                    : post.authorName[0].toUpperCase();
+                                
+                                return `
+                                <article class="post-card">
+                                    <div class="post-header">
+                                        <div class="post-avatar">${postAvatar}</div>
+                                        <div class="post-user-info">
+                                            <h3>${post.authorName}</h3>
+                                            <div class="post-fid">FID: ${post.authorFid}</div>
+                                            <div class="post-time">${post.timestamp.toLocaleDateString()} • ${post.timestamp.toLocaleTimeString()}</div>
+                                        </div>
+                                    </div>
 
-                        <img src="${getImageUrl(post.ipfsHash)}" alt="Post" class="post-image" loading="lazy" />
+                                    ${post.caption ? `<div class="post-content" style="padding-bottom: 0;"><p class="post-caption">${post.caption}</p></div>` : ''}
 
-                        <div class="post-content">
-                            <div class="post-actions">
-                                <button class="action-button ${post.hasLiked ? 'liked' : ''}" onclick="toggleLike('${post.id}', ${post.hasLiked})">
-                                    <span>${post.hasLiked ? '❤️' : '🤍'}</span>
-                                    <span>${post.likes}</span>
-                                </button>
-                                <button class="action-button" onclick="shareToFarcaster('${post.id}', '${getImageUrl(post.ipfsHash)}')">
-                                    <span>🔗</span>
-                                    <span>Share</span>
-                                </button>
-                            </div>
+                                    <img src="${getImageUrl(post.ipfsHash)}" alt="Post" class="post-image" loading="lazy" />
+
+                                    <div class="post-content">
+                                        <div class="post-actions">
+                                            <button class="action-button ${post.hasLiked ? 'liked' : ''}" onclick="toggleLike('${post.id}', ${post.hasLiked})">
+                                                <span>${post.hasLiked ? '❤️' : '🤍'}</span>
+                                                <span>${post.likes}</span>
+                                            </button>
+                                            <button class="action-button" onclick="shareToFarcaster('${post.id}', '${getImageUrl(post.ipfsHash)}')">
+                                                <span>🔗</span>
+                                                <span>Share</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </article>
+                                `;
+                            }).join('')}
                         </div>
-                    </article>
-                    `;
-                }).join('')}
-            </div>
-        </div>
-    `;
-    return;
-}
+                    </div>
+                `;
+                return;
+            }
+            
             // Render main feed view
             document.getElementById('root').innerHTML = `
                 <div class="app-container">
@@ -1632,7 +1583,9 @@ if (state.currentView === 'profile') {
                                 Search
                             </button>
                         </div>
-      
+                        <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 8px;">
+                            💡 Tip: Search by FID (e.g., 513318), username (e.g., linda), or address
+                        </p>
                     </section>
 
                     <section class="create-post-section">
@@ -1658,7 +1611,7 @@ if (state.currentView === 'profile') {
                         <textarea id="caption-input" class="caption-input" placeholder="Write a caption..." ${state.loading ? 'disabled' : ''} oninput="saveCaptionToState()">${state.currentCaption || ''}</textarea>
 
                         <button class="post-button" onclick="createPost()" ${!state.imageFile || userPostCount >= MAX_POSTS || state.loading || !state.fid ? 'disabled' : ''}>
-                            ${state.loading ? '⏳ Posting...' : ' Post on Face Caster '}
+                            ${state.loading ? '⏳ Posting...' : '🔥 Post to Blockchain'}
                         </button>
                         
                         ${!state.fid ? `
@@ -1687,7 +1640,7 @@ if (state.currentView === 'profile') {
                         ` : state.posts.map(post => {
                             const postAvatar = post.authorPfp 
                                 ? `<img src="${post.authorPfp}" alt="${post.authorName}">`
-                                : post.authorName[0];
+                                : post.authorName[0].toUpperCase();
                             
                             return `
                             <article class="post-card">
