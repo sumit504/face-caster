@@ -416,6 +416,57 @@
             gap: 14px;
         }
 
+        .create-post-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    padding: 12px;
+    background: var(--bg-card);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.create-post-header:hover {
+    background: rgba(139, 92, 246, 0.05);
+}
+
+.create-post-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.create-post-toggle h2 {
+    margin: 0;
+}
+
+.toggle-icon {
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+    color: var(--accent);
+}
+
+.toggle-icon.open {
+    transform: rotate(180deg);
+}
+
+.create-post-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.create-post-content.open {
+    max-height: 1000px;
+    margin-top: 12px;
+}
+
+.create-post-section.collapsed {
+    padding: 0;
+    border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
         .post-card {
             background: var(--bg-card);
             border: 1px solid var(--border);
@@ -682,7 +733,8 @@
             viewingAddress: null,
             viewingProfile: null,
             userPostCount: 0,
-            isWalletConnected: false
+            isWalletConnected: false,
+            isCreatePostOpen: false  // NEW: Add this line
         };
 
         // Profile cache
@@ -1252,6 +1304,11 @@
             }
         }
 
+        function toggleCreatePost() {
+    state.isCreatePostOpen = !state.isCreatePostOpen;
+    renderApp();
+}
+
         // Create post - FIXED WITH AUTO-REFRESH
         async function createPost() {
             if (!state.imageFile) {
@@ -1594,44 +1651,53 @@ async function shareToFarcaster(postId, imageUrl) {
                  
                     </section>
 
-                    <section class="create-post-section">
-                        <h2>Create Post!</h2>
-                        
-                        <div class="image-upload-area ${hasImage}" onclick="${state.imagePreview ? '' : "document.getElementById('file-input').click()"}">
-                            ${state.imagePreview 
-                                ? `<img src="${state.imagePreview}" class="image-preview" />` 
-                                : `<div class="upload-prompt">
-                                    <strong>Click to upload</strong> your real photo<br />
-                                    <small>Will be stored on IPFS (max 10MB)</small>
-                                   </div>`
-                            }
-                        </div>
-                        <input type="file" id="file-input" accept="image/*" style="display: none;" onchange="handleFileSelect(event)" />
-                        
-                        ${state.imagePreview ? `
-                            <button class="post-button" style="background: var(--bg-secondary); color: var(--text-secondary); margin-bottom: 16px; padding: 12px 24px; font-size: 0.85rem; width: auto;" onclick="saveCaptionToState(); state.imagePreview = null; state.imageFile = null; renderApp();">
-                                Change Image
-                            </button>
-                        ` : ''}
+<section class="create-post-section ${state.isCreatePostOpen ? '' : 'collapsed'}">
+    <div class="create-post-header" onclick="toggleCreatePost()">
+        <div class="create-post-toggle">
+            <h2><span class="gradient-text">Create Post</span> ✍️</h2>
+        </div>
+        <span class="toggle-icon ${state.isCreatePostOpen ? 'open' : ''}">
+            ${state.isCreatePostOpen ? '▲' : '▼'}
+        </span>
+    </div>
+    
+    <div class="create-post-content ${state.isCreatePostOpen ? 'open' : ''}">
+        <div class="image-upload-area ${hasImage}" onclick="${state.imagePreview ? '' : "document.getElementById('file-input').click()"}">
+            ${state.imagePreview 
+                ? `<img src="${state.imagePreview}" class="image-preview" />` 
+                : `<div class="upload-prompt">
+                    <strong>Click to upload</strong> your real photo<br />
+                    <small>Will be stored on IPFS (max 10MB)</small>
+                   </div>`
+            }
+        </div>
+        <input type="file" id="file-input" accept="image/*" style="display: none;" onchange="handleFileSelect(event)" />
+        
+        ${state.imagePreview ? `
+            <button class="post-button" style="background: var(--bg-secondary); color: var(--text-secondary); margin-bottom: 16px; padding: 12px 24px; font-size: 0.85rem; width: auto;" onclick="saveCaptionToState(); state.imagePreview = null; state.imageFile = null; renderApp();">
+                Change Image
+            </button>
+        ` : ''}
 
-                        <textarea id="caption-input" class="caption-input" placeholder="Just joined facecaster..." ${state.loading ? 'disabled' : ''} oninput="saveCaptionToState()">${state.currentCaption || ''}</textarea>
+        <textarea id="caption-input" class="caption-input" placeholder="Just joined facecaster..." ${state.loading ? 'disabled' : ''} oninput="saveCaptionToState()">${state.currentCaption || ''}</textarea>
 
-                        <button class="post-button" onclick="createPost()" ${!state.imageFile || userPostCount >= MAX_POSTS || state.loading || !state.fid ? 'disabled' : ''}>
-                            ${state.loading ? '⏳ Posting...' : ' Post to Face Caster '}
-                        </button>
-                        
-                        ${!state.fid ? `
-                            <div class="warning-message" style="margin-top: 16px;">
-                                ⏳ Waiting for Farcaster profile to load...
-                            </div>
-                        ` : ''}
-                        
-                        ${userPostCount >= MAX_POSTS ? `
-                            <div class="warning-message" style="margin-top: 16px;">
-                                You have reached the maximum post limit (10 posts)
-                            </div>
-                        ` : ''}
-                    </section>
+        <button class="post-button" onclick="createPost()" ${!state.imageFile || userPostCount >= MAX_POSTS || state.loading || !state.fid ? 'disabled' : ''}>
+            ${state.loading ? '⏳ Posting...' : '📸 Post to Face Caster'}
+        </button>
+        
+        ${!state.fid ? `
+            <div class="warning-message" style="margin-top: 16px;">
+                ⏳ Waiting for Farcaster profile to load...
+            </div>
+        ` : ''}
+        
+        ${userPostCount >= MAX_POSTS ? `
+            <div class="warning-message" style="margin-top: 16px;">
+                You have reached the maximum post limit (${MAX_POSTS} posts)
+            </div>
+        ` : ''}
+    </div>
+</section>
 
                     <div class="tab-container">
                         <button class="tab active">All Posts</button>
@@ -1693,6 +1759,7 @@ async function shareToFarcaster(postId, imageUrl) {
         window.viewUserProfile = viewUserProfile;
         window.saveCaptionToState = saveCaptionToState;
         window.state = state;
+        window.toggleCreatePost = toggleCreatePost;
 
         // Initialize
         (async () => {
