@@ -316,6 +316,14 @@
             font-weight: 700;
         }
 
+        .header-logo-inline {
+    width: 35px;
+    height: 35px;
+    vertical-align: middle;
+    margin-right: 8px;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+}
+
 .caption-input {
     width: 100%;
     padding: 10px 14px;
@@ -337,22 +345,22 @@
             box-shadow: 0 0 0 2px rgba(255, 107, 107, 0.1);
         }
 
-        .post-button {
-            background: var(--accent-gradient);
-            color: white;
-            border: none;
-            padding: 12px 28px;
-            border-radius: 20px;
-            font-family: 'Poppins', sans-serif;
-            font-weight: 700;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            box-shadow: 0 2px 8px var(--shadow);
-            width: 100%;
-        }
+.post-button {
+    background: var(--accent-gradient);
+    color: white;
+    border: none;
+    padding: 9px 20px;
+    border-radius: 18px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 8px var(--shadow);
+    width: 100%;
+}
 
         .post-button:hover:not(:disabled) {
             transform: translateY(-2px);
@@ -611,10 +619,10 @@
 <body>
     <div id="root">
         <div class="app-container">
-            <header class="header">
-                <h1>Face Caster</h1>
-                <p>Decentralized real face social network</p>
-            </header>
+      <header class="header">
+    <h1><img src="logo.png" alt="Logo" class="header-logo-inline"> Face Caster</h1>
+    <p>Decentralized real face onchain social network.</p>
+</header>
             <div class="empty-state">
                 <div class="loading-spinner"></div>
                 <p style="margin-top: 20px;">Loading...</p>
