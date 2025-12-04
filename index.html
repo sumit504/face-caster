@@ -360,12 +360,14 @@
             box-shadow: 0 4px 12px var(--shadow);
         }
 
-        .post-button:disabled {
-            background: var(--bg-secondary);
-            cursor: not-allowed;
-            opacity: 0.5;
-            box-shadow: none;
-        }
+   .post-button:disabled {
+    background: #d0d0d0 !important;
+    color: #808080 !important;
+    cursor: not-allowed;
+    opacity: 1;
+    box-shadow: none;
+    border: 2px solid #e0e0e0;
+}
 
         .error-message {
             background: rgba(255, 68, 68, 0.1);
@@ -1656,7 +1658,7 @@ if (state.currentView === 'profile') {
                         <textarea id="caption-input" class="caption-input" placeholder="Write a caption..." ${state.loading ? 'disabled' : ''} oninput="saveCaptionToState()">${state.currentCaption || ''}</textarea>
 
                         <button class="post-button" onclick="createPost()" ${!state.imageFile || userPostCount >= MAX_POSTS || state.loading || !state.fid ? 'disabled' : ''}>
-                            ${state.loading ? '⏳ Posting...' : '🔥 Post to Blockchain'}
+                            ${state.loading ? '⏳ Posting...' : ' Post on Face Caster '}
                         </button>
                         
                         ${!state.fid ? `
