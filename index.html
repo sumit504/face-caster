@@ -1579,13 +1579,13 @@
                     ${profileHTML}
 
                     <section class="search-section">
-                        <h2 style="font-family: 'Poppins', sans-serif; font-size: 1.2rem; margin-bottom: 12px; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 700;">Search Users</h2>
+                        <h2 style="font-family: 'Poppins', sans-serif; font-size: 1.2rem; margin-bottom: 12px; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 700;">Search Users 🔎</h2>
                         <div class="search-input-container">
                             <input 
                                 type="text" 
                                 id="search-input" 
                                 class="search-input" 
-                                placeholder="Enter FID, address (0x...), or username"
+                                placeholder="Enter FID or username"
                             />
                             <button class="search-button" onclick="searchUser(document.getElementById('search-input').value)">
                                 Search
@@ -1595,7 +1595,7 @@
                     </section>
 
                     <section class="create-post-section">
-                        <h2>Create Post</h2>
+                        <h2>Create Post 📷</h2>
                         
                         <div class="image-upload-area ${hasImage}" onclick="${state.imagePreview ? '' : "document.getElementById('file-input').click()"}">
                             ${state.imagePreview 
