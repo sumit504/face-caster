@@ -1321,12 +1321,15 @@ function renderApp() {
                                         <input 
                                             type="text" 
                                             id="comment-input-${post.id}"
+                                            class="comment-input-field"
+                                            data-post-id="${post.id}"
                                             placeholder="Write a comment..."
                                             value="${state.currentComment[post.id] || ''}"
                                             style="flex: 1; padding: 8px 12px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 20px; font-size: 0.85rem;"
                                         />
                                         <button 
-                                            onclick="createComment('${post.id}')" 
+                                            class="comment-send-button"
+                                            data-post-id="${post.id}"
                                             style="background: var(--accent-gradient); color: white; border: none; padding: 8px 16px; border-radius: 20px; font-weight: 600; cursor: pointer; font-size: 0.85rem;"
                                             ${state.loading ? 'disabled' : ''}
                                         >
