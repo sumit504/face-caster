@@ -958,7 +958,7 @@ function renderApp() {
                         type="text" 
                         id="search-input" 
                         class="search-input" 
-                        placeholder="Enter FID, address, or username"
+                        placeholder="Enter FID or username"
                     />
                     <button class="search-button" id="search-btn">
                         Search
