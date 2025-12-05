@@ -538,6 +538,21 @@ function renderApp() {
 
             ${profileHTML}
 
+            <section class="search-section" style="background: linear-gradient(135deg, #92d5f4da 0%, #55ade4a9 100%); border: none; border-radius: 12px; padding: 12px; margin-bottom: 14px; box-shadow: 0 4px 20px rgba(139, 92, 246, 0.3);">
+                <h2 style="font-family: 'Poppins', sans-serif; font-size: 1rem; margin-bottom: 10px; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 700;">Search Users 🔎</h2>
+                <div style="display: flex; gap: 8px;">
+                    <input 
+                        type="text" 
+                        id="search-input" 
+                        placeholder="Enter FID or username"
+                        style="flex: 1; padding: 8px 12px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 20px; color: var(--text-primary); font-family: 'Poppins', sans-serif; font-size: 0.85rem;"
+                    />
+                    <button class="search-button" onclick="searchUser(document.getElementById('search-input').value)" style="background: var(--accent-gradient); color: white; border: none; padding: 8px 18px; border-radius: 20px; font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 0.8rem; cursor: pointer; box-shadow: 0 2px 8px var(--shadow);">
+                        Search
+                    </button>
+                </div>
+            </section>
+
             <section class="create-post-section ${state.isCreatePostOpen ? '' : 'collapsed'}">
                 <div class="create-post-header" onclick="toggleCreatePost()">
                     <div class="create-post-toggle">
@@ -622,6 +637,10 @@ function renderApp() {
                                     <span>${post.hasLiked ? '❤️' : '🤍'}</span>
                                     <span>${post.likes}</span>
                                 </button>
+                                <button class="action-button" data-post-id="${post.id}" data-share="true">
+                                    <span>🔵</span>
+                                    <span>Share</span>
+                                </button>
                             </div>
                         </div>
                     </article>
@@ -647,14 +666,113 @@ function renderApp() {
         createPostBtn.onclick = createPost;
     }
     
-    // Like buttons
+    // Like and Share buttons
     document.querySelectorAll('.action-button').forEach(btn => {
         btn.onclick = () => {
             const postId = btn.dataset.postId;
-            const hasLiked = btn.dataset.hasLiked === 'true';
-            toggleLike(postId, hasLiked);
+            
+            if (btn.dataset.share === 'true') {
+                // Share button clicked
+                const post = state.posts.find(p => p.id === postId);
+                if (post) {
+                    shareToFarcaster(postId, getImageUrl(post.ipfsHash));
+                }
+            } else {
+                // Like button clicked
+                const hasLiked = btn.dataset.hasLiked === 'true';
+                toggleLike(postId, hasLiked);
+            }
         };
     });
+}
+
+// Search for user profile
+async function searchUser(searchInput) {
+    try {
+        const searchTerm = searchInput.trim();
+        
+        if (!searchTerm) {
+            alert('Please enter a search term');
+            return;
+        }
+        
+        console.log('🔎 Searching for:', searchTerm);
+        
+        const searchButton = document.querySelector('.search-button');
+        const originalText = searchButton.textContent;
+        searchButton.textContent = 'Searching...';
+        searchButton.disabled = true;
+        
+        try {
+            if (/^\d+$/.test(searchTerm)) {
+                console.log('Searching by FID:', searchTerm);
+                const fid = parseInt(searchTerm);
+                const profile = await fetchProfileByFid(fid);
+                
+                if (profile) {
+                    alert(`Found: ${profile.display_name || profile.username}\nFID: ${fid}`);
+                } else {
+                    alert('No profile found for this FID');
+                }
+            } else {
+                console.log('Searching by username:', searchTerm);
+                
+                const response = await fetch(
+                    `https://api.neynar.com/v2/farcaster/user/search?q=${encodeURIComponent(searchTerm)}&limit=10`,
+                    {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'api_key': NEYNAR_API_KEY
+                        }
+                    }
+                );
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.result && data.result.users && data.result.users.length > 0) {
+                        const user = data.result.users[0];
+                        alert(`Found: ${user.display_name || user.username}\nFID: ${user.fid}`);
+                    } else {
+                        alert('User not found');
+                    }
+                } else {
+                    alert('Search failed');
+                }
+            }
+        } finally {
+            searchButton.textContent = originalText;
+            searchButton.disabled = false;
+        }
+    } catch (error) {
+        console.error('Search error:', error);
+        alert('Search failed. Please try again.');
+        
+        const searchButton = document.querySelector('.search-button');
+        if (searchButton) {
+            searchButton.textContent = 'Search';
+            searchButton.disabled = false;
+        }
+    }
+}
+
+// Share to Farcaster
+async function shareToFarcaster(postId, imageUrl) {
+    try {
+        const shareText = `Just posted on Face Caster! 💜 \n\nCheck out the onchain social network on farcaster, only real photos acceptable. \n\n👉 Join Facecaster`;
+        const encodedText = encodeURIComponent(shareText);
+        const frameUrl = encodeURIComponent('https://face-caster.vercel.app');
+        
+        const castUrl = `https://warpcast.com/~/compose?text=${encodedText}&embeds[]=${frameUrl}`;
+        
+        if (sdk?.actions?.openUrl) {
+            await sdk.actions.openUrl(castUrl);
+        } else {
+            window.open(castUrl, '_blank');
+        }
+    } catch (error) {
+        console.error('Share error:', error);
+    }
 }
 
 // ===== GLOBAL EXPORTS =====
@@ -663,6 +781,8 @@ window.handleFileSelect = handleFileSelect;
 window.createPost = createPost;
 window.toggleLike = toggleLike;
 window.saveCaptionToState = saveCaptionToState;
+window.searchUser = searchUser;
+window.shareToFarcaster = shareToFarcaster;
 
 // ===== INITIALIZE =====
 (async () => {
