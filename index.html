@@ -686,15 +686,15 @@
     <script type="module">
         import { sdk } from 'https://esm.sh/@farcaster/miniapp-sdk';
         import { createConfig, connect, writeContract, readContract, getAccount, waitForTransactionReceipt, watchAccount, http } from 'https://esm.sh/@wagmi/core';
-        import { base } from 'https://esm.sh/@wagmi/core/chains';
+        import { arbitrum } from 'https://esm.sh/@wagmi/core/chains';
         import { farcasterMiniApp } from 'https://esm.sh/@farcaster/miniapp-wagmi-connector';
         
         // Configuration - UPDATE THESE
         const CONTRACT_ADDRESS = "0x6d79E965eaa30ed1296D5916F1dfA6fD1bd347Ff"; // UPDATE THIS
         const PINATA_JWT = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiIzNWVlZTc5Zi0xMzU5LTRmNDEtOTkyMC1mMzUwMmI1NWQwOGQiLCJlbWFpbCI6InN1bWl0am9iNzAzQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJwaW5fcG9saWN5Ijp7InJlZ2lvbnMiOlt7ImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxLCJpZCI6IkZSQTEifSx7ImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxLCJpZCI6Ik5ZQzEifV0sInZlcnNpb24iOjF9LCJtZmFfZW5hYmxlZCI6ZmFsc2UsInN0YXR1cyI6IkFDVElWRSJ9LCJhdXRoZW50aWNhdGlvblR5cGUiOiJzY29wZWRLZXkiLCJzY29wZWRLZXlLZXkiOiI0YzRmNjZhYzlmY2RkNTk2MjBmNiIsInNjb3BlZEtleVNlY3JldCI6IjFhYTEwNDBjNGIwMDdjOWQ4ZWFlMzliODE5Yzg2OGIyZjliMDM2MTY4ZGY1YmFlYjM0OGI3YTliODE1MTI4MjAiLCJleHAiOjE3OTM0Nzk2MTR9.p1NEgDx4aPs71Uol63ZzUVj3XgfRCgsRgGuFDssJ5qY"; // UPDATE THIS
         const NEYNAR_API_KEY = "8BF81B8C-C491-4735-8E1C-FC491FF048D4";
-        const BASE_CHAIN_ID = 8453;
-        const MAX_POSTS = 10;
+        const ARBITRUM_CHAIN_ID = 42161;
+        const MAX_POSTS = 20;
         
         // Contract ABI
         const CONTRACT_ABI = [
@@ -865,11 +865,11 @@
             try {
                 console.log('🔄 Initializing wagmi wallet...');
                 
-                state.walletConfig = createConfig({
-                    chains: [base],
-                    connectors: [farcasterMiniApp()],
-                    transports: {
-                        [base.id]: http('https://base-mainnet.g.alchemy.com/v2/pfjgAI8H9sXDqwp8dPvUs')
+state.walletConfig = createConfig({
+    chains: [arbitrum],
+    connectors: [farcasterMiniApp()],
+    transports: {
+        [arbitrum.id]: http('https://arb-mainnet.g.alchemy.com/v2/B1LejkLDDTELo2DAIk7nc')
                     }
                 });
 
@@ -924,7 +924,7 @@
                     address: CONTRACT_ADDRESS,
                     abi: CONTRACT_ABI,
                     functionName: 'getAllPostIds',
-                    chainId: BASE_CHAIN_ID
+                    chainId: ARBITRUM_CHAIN_ID
                 });
                 
                 console.log('📋 Found', postIds.length, 'posts');
@@ -939,7 +939,7 @@
                             abi: CONTRACT_ABI,
                             functionName: 'getPostCountByFid',
                             args: [state.fid],
-                            chainId: BASE_CHAIN_ID
+                            chainId: ARBITRUM_CHAIN_ID
                         });
                         userPostCount = Number(userPostCount);
                         console.log(`✅ User has ${userPostCount} posts (by FID ${state.fid})`);
@@ -955,7 +955,7 @@
                             abi: CONTRACT_ABI,
                             functionName: 'getPost',
                             args: [id],
-                            chainId: BASE_CHAIN_ID
+                            chainId: ARBITRUM_CHAIN_ID
                         });
                         
                         const hasLiked = state.account ? await readContract(state.walletConfig, {
@@ -963,7 +963,7 @@
                             abi: CONTRACT_ABI,
                             functionName: 'hasUserLiked',
                             args: [id, state.account],
-                            chainId: BASE_CHAIN_ID
+                            chainId: ARBITRUM_CHAIN_ID
                         }) : false;
 
                         const authorAddress = postData[1] || postData.author || '';
@@ -1108,7 +1108,7 @@
                         abi: CONTRACT_ABI,
                         functionName: 'getUserFid',
                         args: [address],
-                        chainId: BASE_CHAIN_ID
+                        chainId: ARBITRUM_CHAIN_ID
                     });
                     userFid = Number(userFid);
                     console.log('📋 User FID from contract:', userFid);
@@ -1156,7 +1156,7 @@
                             abi: CONTRACT_ABI,
                             functionName: 'getUserPostsByFid',
                             args: [userFid],
-                            chainId: BASE_CHAIN_ID
+                            chainId: ARBITRUM_CHAIN_ID
                         });
                         console.log(`📝 Found ${userPostIds.length} posts for FID ${userFid}`);
                     } catch (error) {
@@ -1166,7 +1166,7 @@
                             abi: CONTRACT_ABI,
                             functionName: 'getUserPosts',
                             args: [address],
-                            chainId: BASE_CHAIN_ID
+                            chainId: ARBITRUM_CHAIN_ID
                         });
                     }
                 } else {
@@ -1175,7 +1175,7 @@
                         abi: CONTRACT_ABI,
                         functionName: 'getUserPosts',
                         args: [address],
-                        chainId: BASE_CHAIN_ID
+                        chainId: ARBITRUM_CHAIN_ID
                     });
                 }
                 
@@ -1187,7 +1187,7 @@
                             abi: CONTRACT_ABI,
                             functionName: 'getPost',
                             args: [id],
-                            chainId: BASE_CHAIN_ID
+                            chainId: ARBITRUM_CHAIN_ID
                         });
                         
                         const hasLiked = state.account ? await readContract(state.walletConfig, {
@@ -1195,7 +1195,7 @@
                             abi: CONTRACT_ABI,
                             functionName: 'hasUserLiked',
                             args: [id, state.account],
-                            chainId: BASE_CHAIN_ID
+                            chainId: ARBITRUM_CHAIN_ID
                         }) : false;
 
                         const authorAddress = postData[1] || postData.author || '';
@@ -1344,13 +1344,13 @@
                     abi: CONTRACT_ABI,
                     functionName: 'createPost',
                     args: [ipfsHash, caption, state.fid],
-                    chainId: BASE_CHAIN_ID
+                    chainId: ARBITRUM_CHAIN_ID
                 });
                 
                 console.log('⏳ Waiting for transaction confirmation...');
                 await waitForTransactionReceipt(state.walletConfig, {
                     hash: hash,
-                    chainId: BASE_CHAIN_ID
+                    chainId: ARBITRUM_CHAIN_ID
                 });
 
                 console.log('✅ Transaction confirmed!');
@@ -1405,19 +1405,19 @@
                         abi: CONTRACT_ABI,
                         functionName: 'unlikePost',
                         args: [postId],
-                        chainId: BASE_CHAIN_ID
+                        chainId: ARBITRUM_CHAIN_ID
                     })
                     : await writeContract(state.walletConfig, {
                         address: CONTRACT_ADDRESS,
                         abi: CONTRACT_ABI,
                         functionName: 'likePost',
                         args: [postId],
-                        chainId: BASE_CHAIN_ID
+                        chainId: ARBITRUM_CHAIN_ID
                     });
                     
                 await waitForTransactionReceipt(state.walletConfig, {
                     hash: hash,
-                    chainId: BASE_CHAIN_ID
+                    chainId: ARBITRUM_CHAIN_ID
                 });
                 
                 await loadPosts();
