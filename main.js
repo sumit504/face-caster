@@ -997,7 +997,7 @@ function renderApp() {
                     <textarea id="caption-input" class="caption-input" placeholder="Just joined facecaster..." ${state.loading ? 'disabled' : ''}>${state.currentCaption || ''}</textarea>
 
                     <button class="post-button" id="create-post-btn" ${!state.imageFile || userPostCount >= MAX_POSTS || state.loading || !state.fid ? 'disabled' : ''}>
-                        ${state.loading ? '⏳ Posting...' : '📸 Post to Face Caster'}
+                        ${state.loading ? '⏳ Posting...' : 'Post to Face Caster'}
                     </button>
                     
                     ${!state.fid ? `
