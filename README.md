@@ -4,8 +4,6 @@
 
 Face Caster is a decentralized social network built on Arbitrum that enables users to share authentic moments through photos stored on IPFS. Built as a Farcaster Mini App with seamless wallet integration powered by Reown AppKit.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/your-username/face-caster)
-
 ## ✨ Features
 
 - 📷 **Share Real Photos** - Upload authentic moments stored permanently on IPFS
@@ -133,10 +131,11 @@ node >= 18.0.0
 npm >= 9.0.0
 ```
 
-### 1. Clone the Repository
+### 1. Get the Project Files
+
+Download or clone the project files to your local machine.
 
 ```bash
-git clone https://github.com/your-username/face-caster.git
 cd face-caster
 ```
 
@@ -223,10 +222,8 @@ npm run preview
 
 ### Deploy to Vercel
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/your-username/face-caster)
-
-1. Push your code to GitHub
-2. Import project in Vercel
+1. Create account at [Vercel](https://vercel.com)
+2. Import your project
 3. Add environment variables in Vercel dashboard
 4. Deploy!
 
@@ -447,13 +444,12 @@ const MAX_POSTS = 20; // Change this value
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! If you'd like to contribute:
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+1. Make your changes in a separate branch
+2. Test thoroughly
+3. Submit your improvements
+4. Ensure code follows existing patterns
 
 ## 📄 License
 
@@ -470,10 +466,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-- **Documentation**: [Your docs URL]
-- **Discord**: [Your Discord invite]
-- **Twitter**: [@YourHandle]
-- **Email**: support@face-caster.app
+For support and questions:
+- Check the documentation above
+- Review troubleshooting section
+- Verify environment variables are set correctly
 
 ## 🗺️ Roadmap
 
@@ -488,22 +484,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [ ] Premium features
 - [ ] Mobile app
 
-## 📸 Screenshots
-
-### Main Feed
-![Feed Screenshot](screenshots/feed.png)
-
-### User Profile
-![Profile Screenshot](screenshots/profile.png)
-
-### Wallet Connection (Reown AppKit)
-![Wallet Screenshot](screenshots/wallet.png)
-
-### Create Post
-![Create Screenshot](screenshots/create.png)
-
 ---
 
 **Built with 💜 on Arbitrum | Powered by Reown AppKit**
-
-Star ⭐ this repo if you find it useful!
