@@ -98,7 +98,7 @@ async function initializeWallet() {
                 name: 'Face Caster',
                 description: 'Decentralized real face onchain social network',
                 url: 'https://face-caster.vercel.app',
-                icons: ['https://raw.githubusercontent.com/sumit504/face-caster/main/logo.png']
+                icons: ['https://face-caster.vercel.app/logo.png']
             },
             features: {
                 analytics: true,
@@ -476,7 +476,7 @@ function renderConnectWallet() {
     document.getElementById('root').innerHTML = `
         <div class="app-container">
             <header class="header">
-                <h1><img src="https://raw.githubusercontent.com/sumit504/face-caster/main/logo.png" alt="Logo" class="header-logo-inline"> Face Caster</h1>
+                <h1><img src="https://face-caster.vercel.app/logo.png" alt="Logo" class="header-logo-inline"> Face Caster</h1>
                 <p>Decentralized real face onchain social network</p>
             </header>
             <div class="connect-wallet-section">
@@ -528,7 +528,7 @@ function renderApp() {
     document.getElementById('root').innerHTML = `
         <div class="app-container">
             <header class="header">
-                <h1><img src="https://raw.githubusercontent.com/sumit504/face-caster/main/logo.png" alt="Logo" class="header-logo-inline"> Face Caster</h1>
+                <h1><img src="https://face-caster.vercel.app/logo.png" alt="Logo" class="header-logo-inline"> Face Caster</h1>
                 <p>Decentralized real face onchain social network.</p>
                 <div class="post-limit-indicator">
                     <span class="dot"></span>
