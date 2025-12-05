@@ -899,12 +899,12 @@ function renderApp() {
                             <div class="post-content">
                                 <div class="post-actions">
                                     <button class="action-button ${post.hasLiked ? 'liked' : ''}" data-post-id="${post.id}" data-has-liked="${post.hasLiked}">
-                                        <span>${post.hasLiked ? '❤️' : '🤍'}</span>
+                                        <span>${post.hasLiked ? '🤍' : '🤍'}</span>
                                         <span>${post.likes}</span>
                                     </button>
                                     <button class="action-button" data-share-post-id="${post.id}">
                                         <span>🔵</span>
-                                        <span>Share</span>
+                                        <span>Share to farcaster</span>
                                     </button>
                                 </div>
                             </div>
