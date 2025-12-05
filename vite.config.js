@@ -1,17 +1,36 @@
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vite'
+import { Buffer } from 'buffer'
 
 export default defineConfig({
-  root: './',
+  publicDir: 'public',
   build: {
     outDir: 'dist',
+    assetsDir: 'assets',
     rollupOptions: {
-      input: {
-        main: './index.html'
+      output: {
+        manualChunks: undefined
       }
     }
   },
   server: {
-    port: 3000,
-    open: true
+    port: 3000
+  },
+  define: {
+    global: 'globalThis',
+  },
+  resolve: {
+    alias: {
+      buffer: 'buffer',
+      process: 'process/browser',
+      stream: 'stream-browserify',
+      util: 'util'
+    }
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      define: {
+        global: 'globalThis'
+      }
+    }
   }
-});
+})
