@@ -21,7 +21,7 @@ import { createAppKit } from '@reown/appkit';
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi';
 
 // ===== CONFIGURATION =====
-const CONTRACT_ADDRESS = "0x9BBe1531e34897e55Ecc5cf7Bf887BF73542cc85";
+const CONTRACT_ADDRESS = "0xb72A489a1e1676C9F53E82B5Db2a18aFB619A408";
 const PINATA_JWT = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiIzNWVlZTc5Zi0xMzU5LTRmNDEtOTkyMC1mMzUwMmI1NWQwOGQiLCJlbWFpbCI6InN1bWl0am9iNzAzQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJwaW5fcG9saWN5Ijp7InJlZ2lvbnMiOlt7ImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxLCJpZCI6IkZSQTEifSx7ImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxLCJpZCI6Ik5ZQzEifV0sInZlcnNpb24iOjF9LCJtZmFfZW5hYmxlZCI6ZmFsc2UsInN0YXR1cyI6IkFDVElWRSJ9LCJhdXRoZW50aWNhdGlvblR5cGUiOiJzY29wZWRLZXkiLCJzY29wZWRLZXlLZXkiOiI0YzRmNjZhYzlmY2RkNTk2MjBmNiIsInNjb3BlZEtleVNlY3JldCI6IjFhYTEwNDBjNGIwMDdjOWQ4ZWFlMzliODE5Yzg2OGIyZjliMDM2MTY4ZGY1YmFlYjM0OGI3YTliODE1MTI4MjAiLCJleHAiOjE3OTM0Nzk2MTR9.p1NEgDx4aPs71Uol63ZzUVj3XgfRCgsRgGuFDssJ5qY";
 const NEYNAR_API_KEY = "8BF81B8C-C491-4735-8E1C-FC491FF048D4";
 const ARBITRUM_CHAIN_ID = 42161;
@@ -1058,12 +1058,15 @@ function renderApp() {
                                             <input 
                                                 type="text" 
                                                 id="comment-input-${post.id}"
+                                                class="comment-input-field"
+                                                data-post-id="${post.id}"
                                                 placeholder="Write a comment..."
                                                 value="${state.currentComment[post.id] || ''}"
                                                 style="flex: 1; padding: 8px 12px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 20px; font-size: 0.85rem;"
                                             />
                                             <button 
-                                                onclick="createComment('${post.id}')" 
+                                                class="comment-send-button"
+                                                data-post-id="${post.id}"
                                                 style="background: var(--accent-gradient); color: white; border: none; padding: 8px 16px; border-radius: 20px; font-weight: 600; cursor: pointer; font-size: 0.85rem;"
                                                 ${state.loading ? 'disabled' : ''}
                                             >
@@ -1131,17 +1134,25 @@ function renderApp() {
             };
         });
         
-        // Comment input listeners
-        document.querySelectorAll('[id^="comment-input-"]').forEach(input => {
+        // Comment input listeners for profile view
+        document.querySelectorAll('.comment-input-field').forEach(input => {
             input.oninput = (e) => {
-                const postId = e.target.id.replace('comment-input-', '');
+                const postId = e.target.dataset.postId;
                 saveCommentText(postId, e.target.value);
             };
             input.onkeypress = (e) => {
                 if (e.key === 'Enter') {
-                    const postId = e.target.id.replace('comment-input-', '');
+                    const postId = e.target.dataset.postId;
                     createComment(postId);
                 }
+            };
+        });
+        
+        // Comment send button listeners for profile view
+        document.querySelectorAll('.comment-send-button').forEach(btn => {
+            btn.onclick = () => {
+                const postId = btn.dataset.postId;
+                createComment(postId);
             };
         });
         
@@ -1417,16 +1428,24 @@ function renderApp() {
     });
     
     // Comment input listeners
-    document.querySelectorAll('[id^="comment-input-"]').forEach(input => {
+    document.querySelectorAll('.comment-input-field').forEach(input => {
         input.oninput = (e) => {
-            const postId = e.target.id.replace('comment-input-', '');
+            const postId = e.target.dataset.postId;
             saveCommentText(postId, e.target.value);
         };
         input.onkeypress = (e) => {
             if (e.key === 'Enter') {
-                const postId = e.target.id.replace('comment-input-', '');
+                const postId = e.target.dataset.postId;
                 createComment(postId);
             }
+        };
+    });
+    
+    // Comment send button listeners
+    document.querySelectorAll('.comment-send-button').forEach(btn => {
+        btn.onclick = () => {
+            const postId = btn.dataset.postId;
+            createComment(postId);
         };
     });
 }
