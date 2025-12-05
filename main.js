@@ -811,7 +811,20 @@ async function loadComments(postId) {
 
 // Create a comment
 async function createComment(postId) {
-    const commentText = state.currentComment[postId];
+    console.log('🔵 createComment called with postId:', postId);
+    console.log('🔵 Current comment from state:', state.currentComment[postId]);
+    
+    // Try to get text from state first, then fallback to input field
+    let commentText = state.currentComment[postId];
+    
+    // If state is empty, try reading directly from the input field
+    if (!commentText || !commentText.trim()) {
+        const inputField = document.getElementById(`comment-input-${postId}`);
+        if (inputField) {
+            commentText = inputField.value;
+            console.log('🔵 Got comment text from input field:', commentText);
+        }
+    }
     
     if (!commentText || !commentText.trim()) {
         alert('Please enter a comment');
@@ -827,7 +840,7 @@ async function createComment(postId) {
         state.loading = true;
         renderApp();
         
-        console.log('💬 Creating comment on post:', postId);
+        console.log('💬 Creating comment on post:', postId, 'with text:', commentText);
         
         const hash = await writeContract(state.walletConfig, {
             address: CONTRACT_ADDRESS,
@@ -1449,22 +1462,31 @@ function renderApp() {
     
     // Comment input listeners
     document.querySelectorAll('.comment-input-field').forEach(input => {
+        console.log('🔧 Attaching input listener for post:', input.dataset.postId);
         input.oninput = (e) => {
             const postId = e.target.dataset.postId;
-            saveCommentText(postId, e.target.value);
+            const text = e.target.value;
+            console.log('⌨️ Input changed for post:', postId, 'new text:', text);
+            saveCommentText(postId, text);
         };
         input.onkeypress = (e) => {
             if (e.key === 'Enter') {
                 const postId = e.target.dataset.postId;
+                console.log('⏎ Enter pressed for post:', postId);
                 createComment(postId);
             }
         };
     });
     
     // Comment send button listeners
-    document.querySelectorAll('.comment-send-button').forEach(btn => {
-        btn.onclick = () => {
+    const commentButtons = document.querySelectorAll('.comment-send-button');
+    console.log('🔧 Found', commentButtons.length, 'comment send buttons');
+    commentButtons.forEach(btn => {
+        console.log('🔧 Attaching onclick to comment send button for post:', btn.dataset.postId);
+        btn.onclick = (e) => {
+            e.preventDefault();
             const postId = btn.dataset.postId;
+            console.log('🖱️ Comment send button clicked for post:', postId);
             createComment(postId);
         };
     });
