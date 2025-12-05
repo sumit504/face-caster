@@ -21,7 +21,7 @@ import { createAppKit } from '@reown/appkit';
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi';
 
 // ===== CONFIGURATION =====
-const CONTRACT_ADDRESS = "0xb72A489a1e1676C9F53E82B5Db2a18aFB619A408";
+const CONTRACT_ADDRESS = "0xa095322BE4Dcf336249471A0dCC8114e5E12Cec9";
 const PINATA_JWT = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiIzNWVlZTc5Zi0xMzU5LTRmNDEtOTkyMC1mMzUwMmI1NWQwOGQiLCJlbWFpbCI6InN1bWl0am9iNzAzQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJwaW5fcG9saWN5Ijp7InJlZ2lvbnMiOlt7ImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxLCJpZCI6IkZSQTEifSx7ImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxLCJpZCI6Ik5ZQzEifV0sInZlcnNpb24iOjF9LCJtZmFfZW5hYmxlZCI6ZmFsc2UsInN0YXR1cyI6IkFDVElWRSJ9LCJhdXRoZW50aWNhdGlvblR5cGUiOiJzY29wZWRLZXkiLCJzY29wZWRLZXlLZXkiOiI0YzRmNjZhYzlmY2RkNTk2MjBmNiIsInNjb3BlZEtleVNlY3JldCI6IjFhYTEwNDBjNGIwMDdjOWQ4ZWFlMzliODE5Yzg2OGIyZjliMDM2MTY4ZGY1YmFlYjM0OGI3YTliODE1MTI4MjAiLCJleHAiOjE3OTM0Nzk2MTR9.p1NEgDx4aPs71Uol63ZzUVj3XgfRCgsRgGuFDssJ5qY";
 const NEYNAR_API_KEY = "8BF81B8C-C491-4735-8E1C-FC491FF048D4";
 const ARBITRUM_CHAIN_ID = 42161;
@@ -738,6 +738,22 @@ async function loadComments(postId) {
     try {
         console.log('📥 Loading comments for post:', postId);
         
+        // First check if post exists by trying to get the post
+        try {
+            await readContract(state.walletConfig, {
+                address: CONTRACT_ADDRESS,
+                abi: CONTRACT_ABI,
+                functionName: 'getPost',
+                args: [postId],
+                chainId: ARBITRUM_CHAIN_ID
+            });
+        } catch (postError) {
+            console.log('⚠️ Post does not exist or has been deleted:', postId);
+            state.postComments[postId] = [];
+            renderApp();
+            return;
+        }
+        
         const commentIds = await readContract(state.walletConfig, {
             address: CONTRACT_ADDRESS,
             abi: CONTRACT_ABI,
@@ -777,6 +793,8 @@ async function loadComments(postId) {
                 });
             } catch (error) {
                 console.error(`Error loading comment ${commentId}:`, error);
+                // Comment might have been deleted, skip it
+                continue;
             }
         }
         
@@ -785,7 +803,9 @@ async function loadComments(postId) {
         
     } catch (error) {
         console.error('Error loading comments:', error);
+        // Set empty array so UI doesn't break
         state.postComments[postId] = [];
+        renderApp();
     }
 }
 
