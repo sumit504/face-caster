@@ -711,7 +711,7 @@ async function toggleLike(postId, hasLiked) {
 // ===== SHARE TO FARCASTER =====
 async function shareToFarcaster(postId, imageUrl) {
     try {
-        const shareText = `Just posted on Face Caster! 💜\n\nCheck out the onchain social network on farcaster, only real photos acceptable.\n\n👉 Join Facecaster`;
+        const shareText = `Just posted on Face Caster 💜\n\nCheck out the onchain social network on farcaster, only real photos acceptable.\n\n👉 Join Facecaster`;
         const encodedText = encodeURIComponent(shareText);
         const frameUrl = encodeURIComponent('https://face-caster.vercel.app');
         
@@ -1047,12 +1047,12 @@ function renderApp() {
                         <div class="post-content">
                             <div class="post-actions">
                                 <button class="action-button ${post.hasLiked ? 'liked' : ''}" data-post-id="${post.id}" data-has-liked="${post.hasLiked}">
-                                    <span>${post.hasLiked ? '❤️' : '🤍'}</span>
+                                    <span>${post.hasLiked ? '🤍' : '🤍'}</span>
                                     <span>${post.likes}</span>
                                 </button>
                                 <button class="action-button" data-share-post-id="${post.id}">
                                     <span>🔵</span>
-                                    <span>Share</span>
+                                    <span>Share to farcaster</span>
                                 </button>
                             </div>
                         </div>
