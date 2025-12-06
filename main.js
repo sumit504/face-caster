@@ -1377,7 +1377,7 @@ function renderApp() {
         </div>
     `;
     
-    // Attach event listeners
+// Attach event listeners
     const searchBtn = document.getElementById('search-btn');
     if (searchBtn) {
         searchBtn.onclick = () => {
@@ -1396,6 +1396,35 @@ function renderApp() {
             }
         };
     }
+    
+    // 👇 ADD YOUR CODE HERE
+    // All Posts tab button
+    const allPostsTab = document.querySelector('.tab');
+    if (allPostsTab) {
+        allPostsTab.onclick = async () => {
+            console.log('🔄 Reloading feed...');
+            
+            // Reset to feed view
+            state.currentView = 'feed';
+            state.viewingAddress = null;
+            state.viewingProfile = null;
+            state.showCommentsForPost = null;
+            state.isCreatePostOpen = false;
+            
+            // Reload posts from blockchain
+            state.loading = true;
+            renderApp();
+            
+            await loadPosts();
+            
+            state.loading = false;
+            renderApp();
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+    }
+    // 👆 END OF NEW CODE
     
     const toggleCreatePostBtn = document.getElementById('toggle-create-post');
     if (toggleCreatePostBtn) {
