@@ -25,6 +25,8 @@ const CONTRACT_ADDRESS = "0x5F74269b1ceb756D93B8C11F051a32E764774169";
 const BASE_CHAIN_ID = 8453;
 const MAX_POSTS = 20;
 const PROJECT_ID = '6be120a150654d42b97a3ed83c1bf1c4';
+const IPFS_GATEWAY = 'https://monocats.mypinata.cloud/ipfs/';
+
 
 // Contract ABI - UPDATED with comment functions
 const CONTRACT_ABI = [
@@ -512,19 +514,26 @@ async function viewUserProfile(address) {
 // ===== IPFS UPLOAD =====
 async function uploadToPinata(file) {
     try {
-        const formData = new FormData();
-        formData.append('file', file);
-
-        const metadata = JSON.stringify({
-            name: `face-caster-${Date.now()}`,
-        });
-        formData.append('pinataMetadata', metadata);
-
         console.log('📤 Uploading to Pinata IPFS...');
+        
+        // Convert file to base64
+        const base64 = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result.split(',')[1]);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
         
         const response = await fetch('/api/pinata', {
             method: 'POST',
-            body: formData
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                fileName: file.name,
+                fileType: file.type,
+                fileData: base64
+            })
         });
 
         if (!response.ok) {
@@ -954,9 +963,8 @@ function renderConnectWallet() {
 }
 
 function getImageUrl(ipfsHash) {
-    return `https://gateway.pinata.cloud/ipfs/${ipfsHash}`;
+    return `${IPFS_GATEWAY}${ipfsHash}`;
 }
-
 function renderApp() {
     const hasImage = state.imagePreview ? 'has-image' : '';
     const userPostCount = state.userPostCount || 0;
