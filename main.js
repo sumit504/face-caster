@@ -889,7 +889,7 @@ function saveCommentText(postId, text) {
 // ===== SHARE TO FARCASTER =====
 async function shareToFarcaster(postId, imageUrl) {
     try {
-        const shareText = `Just posted real photo on Face Caster 💜\n\nCheck out the onchain social network on farcaster, only real photos acceptable.\n\n👉 Join Facecaster`;
+        const shareText = `Just posted a photo on Face Caster 💜\n\nCheck out the onchain social network on farcaster, Share real photos on base.\n\n👉 Join Facecaster`;
         const encodedText = encodeURIComponent(shareText);
         const frameUrl = encodeURIComponent('https://face-caster.vercel.app');
         
