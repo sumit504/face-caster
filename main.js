@@ -1017,7 +1017,7 @@ function renderApp() {
             <div class="app-container">
                 <header class="header">
                     <h1><img src="https://face-caster.vercel.app/logo.png" alt="Logo" class="header-logo-inline"> Face Caster</h1>
-                    <p>Decentralized real face / photos onchain social network.</p>
+                    <p>The real face / photos onchain social network.</p>
                     <p>Connect with your friends and share moments.</p>
                 </header>
 
@@ -1202,7 +1202,7 @@ function renderApp() {
         <div class="app-container">
             <header class="header">
                 <h1><img src="https://face-caster.vercel.app/logo.png" alt="Logo" class="header-logo-inline"> Face Caster</h1>
-                  <p>Decentralized real face / photos onchain social network.</p>
+                  <p>The real face / photos onchain social network.</p>
                     <p>Connect with your friends and share moments.</p>
                 <div class="post-limit-indicator">
                     <span class="dot"></span>
