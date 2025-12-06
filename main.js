@@ -538,6 +538,7 @@ async function uploadToPinata(file) {
 
         if (!response.ok) {
             const errorData = await response.json();
+            console.error('Upload failed:', errorData);
             throw new Error(errorData.error || `Failed to upload to IPFS: ${response.status}`);
         }
 
