@@ -42,7 +42,7 @@ Face Caster is a decentralized social network built on Base that enables users t
 
 ### Web3 Infrastructure
 * **RPC Provider**: Base Mainnet
-* **IPFS Gateway**: Custom Pinata Gateway (`monocats.mypinata.cloud`)
+* **IPFS Gateway**: Pinata Gateway
 * **Farcaster API**: Neynar API v2 (user profiles, search)
 * **Smart Contract ABI**: Custom FaceCaster contract
 
