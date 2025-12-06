@@ -15,6 +15,8 @@
     "@reown/appkit-adapter-wagmi": "^1.8.14",
     "@wagmi/core": "^2.13.4",
     "buffer": "^6.0.3",
+    "form-data": "^4.0.5",
+    "formidable": "^3.5.4",
     "process": "^0.11.10",
     "stream-browserify": "^3.0.0",
     "util": "^0.12.5",
