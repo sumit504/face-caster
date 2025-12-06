@@ -8,8 +8,8 @@
     "splashImageUrl": "https://face-caster.vercel.app/splash.png",
     "splashBackgroundColor": "#834AF1",
     "webhookUrl": "https://face-caster.vercel.app/api/webhook",
-    "subtitle": "Share real face onchain",
-    "description": "Connect with face and share moments on face caster",
+    "subtitle": "Share real moments onchain",
+    "description": "Connect with friends and share moments on face caster",
     "primaryCategory": "social",
     "tags": [
       "facecaster",
