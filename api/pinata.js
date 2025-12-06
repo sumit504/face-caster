@@ -1,118 +1,116 @@
-import formidable from 'formidable';
-import fs from 'fs';
-import FormData from 'form-data';
-
 export const config = {
   api: {
-    bodyParser: false,
+    bodyParser: {
+      sizeLimit: '10mb',
+    },
   },
 };
 
 export default async function handler(req, res) {
-  // Enable CORS
-  res.setHeader('Access-Control-Allow-Credentials', true);
+  // CORS headers - must be first
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-  res.setHeader(
-    'Access-Control-Allow-Headers',
-    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
-  );
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
+  console.log('📨 Received request:', req.method);
+
+  // Handle OPTIONS (preflight)
   if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
+    console.log('✅ Handling OPTIONS preflight');
+    return res.status(200).end();
   }
 
+  // Handle GET (for testing)
+  if (req.method === 'GET') {
+    return res.status(200).json({ 
+      message: 'Pinata API endpoint is working',
+      hasJWT: !!process.env.PINATA_JWT,
+      jwtLength: process.env.PINATA_JWT?.length || 0
+    });
+  }
+
+  // Handle POST
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    console.error('❌ Method not allowed:', req.method);
+    return res.status(405).json({ error: 'Method not allowed', received: req.method });
   }
 
   try {
-    // Parse the multipart form data
-    const form = formidable({
-      maxFileSize: 10 * 1024 * 1024, // 10MB
-      keepExtensions: true
-    });
+    console.log('📥 Processing POST request');
+    
+    const { fileName, fileType, fileData } = req.body || {};
 
-    const parseForm = () => new Promise((resolve, reject) => {
-      form.parse(req, (err, fields, files) => {
-        if (err) reject(err);
-        else resolve({ fields, files });
+    if (!fileName || !fileType || !fileData) {
+      console.error('❌ Missing fields:', { fileName: !!fileName, fileType: !!fileType, fileData: !!fileData });
+      return res.status(400).json({ 
+        error: 'Missing required fields',
+        received: { fileName: !!fileName, fileType: !!fileType, fileData: !!fileData }
       });
-    });
-
-    const { fields, files } = await parseForm();
-    
-    // Get the file
-    const file = files.file;
-    if (!file) {
-      return res.status(400).json({ error: 'No file provided' });
     }
 
-    // Handle both array and single file cases
-    const uploadFile = Array.isArray(file) ? file[0] : file;
+    console.log('📤 Uploading to Pinata:', fileName, fileType);
 
-    // Create a new FormData instance for the Pinata request
-    const formData = new FormData();
+    // Convert base64 to buffer
+    const buffer = Buffer.from(fileData, 'base64');
     
-    // Add the file to FormData
-    formData.append('file', fs.createReadStream(uploadFile.filepath), {
-      filename: uploadFile.originalFilename || uploadFile.newFilename,
-      contentType: uploadFile.mimetype,
-    });
-
-    // Add metadata if provided
-    if (fields.pinataMetadata) {
-      const metadata = Array.isArray(fields.pinataMetadata) 
-        ? fields.pinataMetadata[0] 
-        : fields.pinataMetadata;
-      formData.append('pinataMetadata', metadata);
-    }
-
-    console.log('📤 Uploading to Pinata IPFS...');
+    // Create boundary
+    const boundary = `----FormBoundary${Date.now()}`;
     
-    const response = await fetch('https://api.pinata.cloud/pinning/pinFileToIPFS', {
+    // Build multipart form data
+    const parts = [];
+    
+    // File part
+    parts.push(Buffer.from(
+      `--${boundary}\r\n` +
+      `Content-Disposition: form-data; name="file"; filename="${fileName}"\r\n` +
+      `Content-Type: ${fileType}\r\n\r\n`
+    ));
+    parts.push(buffer);
+    parts.push(Buffer.from('\r\n'));
+    
+    // Metadata part
+    const metadata = JSON.stringify({ name: `face-caster-${Date.now()}` });
+    parts.push(Buffer.from(
+      `--${boundary}\r\n` +
+      `Content-Disposition: form-data; name="pinataMetadata"\r\n\r\n` +
+      metadata + '\r\n'
+    ));
+    
+    parts.push(Buffer.from(`--${boundary}--\r\n`));
+    
+    const body = Buffer.concat(parts);
+
+    // Upload to Pinata
+    const pinataResponse = await fetch('https://api.pinata.cloud/pinning/pinFileToIPFS', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${process.env.PINATA_JWT}`,
-        ...formData.getHeaders()
+        'Content-Type': `multipart/form-data; boundary=${boundary}`
       },
-      body: formData
+      body: body
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Pinata API error:', response.status, errorText);
-      
-      // Clean up the temporary file
-      try {
-        fs.unlinkSync(uploadFile.filepath);
-      } catch (cleanupErr) {
-        console.error('Cleanup error:', cleanupErr);
-      }
-      
-      return res.status(response.status).json({ 
-        error: `Pinata upload failed: ${response.status}`,
-        details: errorText 
+    const responseText = await pinataResponse.text();
+    
+    if (!pinataResponse.ok) {
+      console.error('❌ Pinata error:', pinataResponse.status, responseText);
+      return res.status(pinataResponse.status).json({ 
+        error: 'Pinata upload failed',
+        details: responseText 
       });
     }
 
-    const data = await response.json();
-    console.log('✅ Uploaded to Pinata:', data.IpfsHash);
-    
-    // Clean up the temporary file
-    try {
-      fs.unlinkSync(uploadFile.filepath);
-    } catch (cleanupErr) {
-      console.error('Cleanup error:', cleanupErr);
-    }
+    const data = JSON.parse(responseText);
+    console.log('✅ Success:', data.IpfsHash);
     
     return res.status(200).json(data);
+    
   } catch (error) {
-    console.error('Pinata API error:', error);
+    console.error('❌ Error:', error);
     return res.status(500).json({ 
-      error: error.message || 'Internal server error',
-      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      error: error.message,
+      stack: error.stack
     });
   }
 }
