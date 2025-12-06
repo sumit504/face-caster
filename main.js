@@ -22,8 +22,6 @@ import { WagmiAdapter } from '@reown/appkit-adapter-wagmi';
 
 // ===== CONFIGURATION =====
 const CONTRACT_ADDRESS = "0x5F74269b1ceb756D93B8C11F051a32E764774169";
-const PINATA_JWT = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiIzNWVlZTc5Zi0xMzU5LTRmNDEtOTkyMC1mMzUwMmI1NWQwOGQiLCJlbWFpbCI6InN1bWl0am9iNzAzQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJwaW5fcG9saWN5Ijp7InJlZ2lvbnMiOlt7ImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxLCJpZCI6IkZSQTEifSx7ImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxLCJpZCI6Ik5ZQzEifV0sInZlcnNpb24iOjF9LCJtZmFfZW5hYmxlZCI6ZmFsc2UsInN0YXR1cyI6IkFDVElWRSJ9LCJhdXRoZW50aWNhdGlvblR5cGUiOiJzY29wZWRLZXkiLCJzY29wZWRLZXlLZXkiOiI0YzRmNjZhYzlmY2RkNTk2MjBmNiIsInNjb3BlZEtleVNlY3JldCI6IjFhYTEwNDBjNGIwMDdjOWQ4ZWFlMzliODE5Yzg2OGIyZjliMDM2MTY4ZGY1YmFlYjM0OGI3YTliODE1MTI4MjAiLCJleHAiOjE3OTM0Nzk2MTR9.p1NEgDx4aPs71Uol63ZzUVj3XgfRCgsRgGuFDssJ5qY";
-const NEYNAR_API_KEY = "8BF81B8C-C491-4735-8E1C-FC491FF048D4";
 const BASE_CHAIN_ID = 8453;
 const MAX_POSTS = 20;
 const PROJECT_ID = '6be120a150654d42b97a3ed83c1bf1c4';
@@ -40,7 +38,6 @@ const CONTRACT_ABI = [
     {"inputs": [{"internalType": "uint256", "name": "_fid", "type": "uint256"}], "name": "getPostCountByFid", "outputs": [{"internalType": "uint256", "name": "count", "type": "uint256"}], "stateMutability": "view", "type": "function"},
     {"inputs": [{"internalType": "address", "name": "_user", "type": "address"}], "name": "getUserPosts", "outputs": [{"internalType": "uint256[]", "name": "postIds", "type": "uint256[]"}], "stateMutability": "view", "type": "function"},
     {"inputs": [{"internalType": "address", "name": "_user", "type": "address"}], "name": "getUserFid", "outputs": [{"internalType": "uint256", "name": "fid", "type": "uint256"}], "stateMutability": "view", "type": "function"},
-    // NEW: Comment functions
     {"inputs": [{"internalType": "uint256", "name": "_postId", "type": "uint256"}, {"internalType": "string", "name": "_text", "type": "string"}, {"internalType": "uint256", "name": "_fid", "type": "uint256"}], "name": "createComment", "outputs": [], "stateMutability": "nonpayable", "type": "function"},
     {"inputs": [{"internalType": "uint256", "name": "_commentId", "type": "uint256"}], "name": "deleteComment", "outputs": [], "stateMutability": "nonpayable", "type": "function"},
     {"inputs": [{"internalType": "uint256", "name": "_postId", "type": "uint256"}], "name": "getPostComments", "outputs": [{"internalType": "uint256[]", "name": "", "type": "uint256[]"}], "stateMutability": "view", "type": "function"},
@@ -66,23 +63,20 @@ let state = {
     userPostCount: 0,
     isWalletConnected: false,
     isCreatePostOpen: false,
-    // NEW: Comment state
-    showCommentsForPost: null, // which post's comments to show
-    currentComment: {}, // postId -> comment text
-    postComments: {} // postId -> array of comments
+    showCommentsForPost: null,
+    currentComment: {},
+    postComments: {}
 };
 
 let profileCache = {};
 
 // ===== CUSTOM POPUP FUNCTIONS =====
 function showPopup(message, type = 'success') {
-    // Remove any existing popup
     const existingPopup = document.querySelector('.custom-popup-overlay');
     if (existingPopup) {
         existingPopup.remove();
     }
     
-    // Icon mapping
     const icons = {
         success: '🎉',
         error: '❌',
@@ -92,7 +86,6 @@ function showPopup(message, type = 'success') {
     
     const icon = icons[type] || icons.info;
     
-    // Create popup
     const overlay = document.createElement('div');
     overlay.className = 'custom-popup-overlay';
     overlay.innerHTML = `
@@ -105,7 +98,6 @@ function showPopup(message, type = 'success') {
     
     document.body.appendChild(overlay);
     
-    // Close on overlay click
     overlay.addEventListener('click', (e) => {
         if (e.target === overlay) {
             closePopup();
@@ -121,7 +113,6 @@ function closePopup() {
     }
 }
 
-// Add fadeOut animation
 const style = document.createElement('style');
 style.textContent = `
     @keyframes fadeOut {
@@ -234,16 +225,7 @@ async function fetchFarcasterProfile() {
             state.fid = context.user.fid;
             console.log('✅ Current user FID:', state.fid);
             
-            const response = await fetch(
-                `https://api.neynar.com/v2/farcaster/user/bulk?fids=${state.fid}`,
-                {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json',
-                        'api_key': NEYNAR_API_KEY
-                    }
-                }
-            );
+            const response = await fetch(`/api/neynar?endpoint=user/bulk?fids=${state.fid}`);
             
             if (response.ok) {
                 const data = await response.json();
@@ -267,16 +249,7 @@ async function fetchProfileByFid(fid) {
             return profileCache[fidStr];
         }
 
-        const response = await fetch(
-            `https://api.neynar.com/v2/farcaster/user/bulk?fids=${fidStr}`,
-            {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json',
-                    'api_key': NEYNAR_API_KEY
-                }
-            }
-        );
+        const response = await fetch(`/api/neynar?endpoint=user/bulk?fids=${fidStr}`);
         
         if (response.ok) {
             const data = await response.json();
@@ -299,16 +272,7 @@ async function searchByUsername(username) {
     try {
         console.log('🔍 Searching for username:', username);
         
-        const response = await fetch(
-            `https://api.neynar.com/v2/farcaster/user/search?q=${encodeURIComponent(username)}&limit=10`,
-            {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json',
-                    'api_key': NEYNAR_API_KEY
-                }
-            }
-        );
+        const response = await fetch(`/api/neynar?endpoint=user/search?q=${encodeURIComponent(username)}&limit=10`);
         
         if (response.ok) {
             const data = await response.json();
@@ -343,7 +307,6 @@ async function searchUser(searchInput) {
         searchButton.disabled = true;
         
         try {
-            // Search by FID (number)
             if (/^\d+$/.test(searchTerm)) {
                 console.log('Searching by FID:', searchTerm);
                 const fid = parseInt(searchTerm);
@@ -357,12 +320,10 @@ async function searchUser(searchInput) {
                     showPopup('No verified address found for this FID', 'error');
                 }
             }
-            // Search by address (0x...)
             else if (searchTerm.toLowerCase().startsWith('0x') && searchTerm.length === 42) {
                 console.log('Searching by address:', searchTerm);
                 await viewUserProfile(searchTerm);
             } 
-            // Search by username
             else {
                 console.log('Searching by username:', searchTerm);
                 
@@ -438,16 +399,7 @@ async function viewUserProfile(address) {
         if (!userFid || userFid === 0) {
             console.log('🔍 Fetching profile by address from Neynar...');
             try {
-                const response = await fetch(
-                    `https://api.neynar.com/v2/farcaster/user/bulk-by-address?addresses=${address}`,
-                    {
-                        method: 'GET',
-                        headers: {
-                            'Accept': 'application/json',
-                            'api_key': NEYNAR_API_KEY
-                        }
-                    }
-                );
+                const response = await fetch(`/api/neynar?endpoint=user/bulk-by-address?addresses=${address}`);
                 
                 if (response.ok) {
                     const data = await response.json();
@@ -570,16 +522,14 @@ async function uploadToPinata(file) {
 
         console.log('📤 Uploading to Pinata IPFS...');
         
-        const response = await fetch('https://api.pinata.cloud/pinning/pinFileToIPFS', {
+        const response = await fetch('/api/pinata', {
             method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${PINATA_JWT}`
-            },
             body: formData
         });
 
         if (!response.ok) {
-            throw new Error(`Failed to upload to IPFS: ${response.status}`);
+            const errorData = await response.json();
+            throw new Error(errorData.error || `Failed to upload to IPFS: ${response.status}`);
         }
 
         const data = await response.json();
@@ -587,7 +537,7 @@ async function uploadToPinata(file) {
         return data.IpfsHash;
     } catch (error) {
         console.error('❌ Pinata upload failed:', error);
-        throw new Error('Failed to upload to IPFS');
+        throw new Error('Failed to upload to IPFS: ' + error.message);
     }
 }
 
@@ -777,9 +727,7 @@ async function toggleLike(postId, hasLiked) {
     }
 }
 
-// ===== NEW: COMMENT FUNCTIONS =====
-
-// Toggle comments visibility
+// ===== COMMENT FUNCTIONS =====
 function toggleComments(postId) {
     if (state.showCommentsForPost === postId) {
         state.showCommentsForPost = null;
@@ -790,12 +738,10 @@ function toggleComments(postId) {
     renderApp();
 }
 
-// Load comments for a post
 async function loadComments(postId) {
     try {
         console.log('📥 Loading comments for post:', postId);
         
-        // First check if post exists by trying to get the post
         try {
             await readContract(state.walletConfig, {
                 address: CONTRACT_ADDRESS,
@@ -850,7 +796,6 @@ async function loadComments(postId) {
                 });
             } catch (error) {
                 console.error(`Error loading comment ${commentId}:`, error);
-                // Comment might have been deleted, skip it
                 continue;
             }
         }
@@ -860,21 +805,17 @@ async function loadComments(postId) {
         
     } catch (error) {
         console.error('Error loading comments:', error);
-        // Set empty array so UI doesn't break
         state.postComments[postId] = [];
         renderApp();
     }
 }
 
-// Create a comment
 async function createComment(postId) {
     console.log('🔵 createComment called with postId:', postId);
     console.log('🔵 Current comment from state:', state.currentComment[postId]);
     
-    // Try to get text from state first, then fallback to input field
     let commentText = state.currentComment[postId];
     
-    // If state is empty, try reading directly from the input field
     if (!commentText || !commentText.trim()) {
         const inputField = document.getElementById(`comment-input-${postId}`);
         if (inputField) {
@@ -915,10 +856,8 @@ async function createComment(postId) {
         
         console.log('✅ Comment created!');
         
-        // Clear comment input
         state.currentComment[postId] = '';
         
-        // Reload posts and comments
         await loadPosts();
         await loadComments(postId);
         
@@ -933,7 +872,6 @@ async function createComment(postId) {
     }
 }
 
-// Save comment text to state
 function saveCommentText(postId, text) {
     state.currentComment[postId] = text;
 }
@@ -1522,17 +1460,14 @@ function renderApp() {
     
     // Comment input listeners
     document.querySelectorAll('.comment-input-field').forEach(input => {
-        console.log('🔧 Attaching input listener for post:', input.dataset.postId);
         input.oninput = (e) => {
             const postId = e.target.dataset.postId;
             const text = e.target.value;
-            console.log('⌨️ Input changed for post:', postId, 'new text:', text);
             saveCommentText(postId, text);
         };
         input.onkeypress = (e) => {
             if (e.key === 'Enter') {
                 const postId = e.target.dataset.postId;
-                console.log('⏎ Enter pressed for post:', postId);
                 createComment(postId);
             }
         };
@@ -1540,13 +1475,10 @@ function renderApp() {
     
     // Comment send button listeners
     const commentButtons = document.querySelectorAll('.comment-send-button');
-    console.log('🔧 Found', commentButtons.length, 'comment send buttons');
     commentButtons.forEach(btn => {
-        console.log('🔧 Attaching onclick to comment send button for post:', btn.dataset.postId);
         btn.onclick = (e) => {
             e.preventDefault();
             const postId = btn.dataset.postId;
-            console.log('🖱️ Comment send button clicked for post:', postId);
             createComment(postId);
         };
     });
@@ -1563,11 +1495,9 @@ window.viewUserProfile = viewUserProfile;
 window.shareToFarcaster = shareToFarcaster;
 window.renderApp = renderApp;
 window.state = state;
-// NEW: Comment exports
 window.toggleComments = toggleComments;
 window.createComment = createComment;
 window.saveCommentText = saveCommentText;
-// Popup exports
 window.showPopup = showPopup;
 window.closePopup = closePopup;
 
