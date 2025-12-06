@@ -1,0 +1,25 @@
+{
+  "frame": {
+    "name": "Face Caster",
+    "version": "1",
+    "iconUrl": "https://face-caster.vercel.app/icon.png",
+    "homeUrl": "https://face-caster.vercel.app",
+    "imageUrl": "https://face-caster.vercel.app/image.png",
+    "splashImageUrl": "https://face-caster.vercel.app/splash.png",
+    "splashBackgroundColor": "#834AF1",
+    "webhookUrl": "https://face-caster.vercel.app/api/webhook",
+    "subtitle": "Share real face onchain",
+    "description": "Connect with face and share moments on face caster",
+    "primaryCategory": "social",
+    "tags": [
+      "facecaster",
+      "face-caster",
+      "face-casterapp"
+    ]
+  },
+  "accountAssociation": {
+    "header": "",
+    "payload": "",
+    "signature": ""
+  }
+}
