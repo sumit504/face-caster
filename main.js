@@ -1017,7 +1017,8 @@ function renderApp() {
             <div class="app-container">
                 <header class="header">
                     <h1><img src="https://face-caster.vercel.app/logo.png" alt="Logo" class="header-logo-inline"> Face Caster</h1>
-                    <p>Decentralized real face onchain social network. Connect with your friends and share moments.</p>
+                    <p>Decentralized real face / photos onchain social network.</p>
+                    <p>Connect with your friends and share moments.</p>
                 </header>
 
                 <button class="post-button" style="margin-bottom: 24px;" onclick="state.currentView = 'feed'; state.viewingProfile = null; renderApp();">
@@ -1201,7 +1202,8 @@ function renderApp() {
         <div class="app-container">
             <header class="header">
                 <h1><img src="https://face-caster.vercel.app/logo.png" alt="Logo" class="header-logo-inline"> Face Caster</h1>
-                <p>Decentralized real face onchain social network. Connect with your friends and share moments.</p>
+                  <p>Decentralized real face / photos onchain social network.</p>
+                    <p>Connect with your friends and share moments.</p>
                 <div class="post-limit-indicator">
                     <span class="dot"></span>
                     <span>Your posts: ${userPostCount} / ${MAX_POSTS}</span>
