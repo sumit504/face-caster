@@ -74,6 +74,63 @@ let state = {
 
 let profileCache = {};
 
+// ===== CUSTOM POPUP FUNCTIONS =====
+function showPopup(message, type = 'success') {
+    // Remove any existing popup
+    const existingPopup = document.querySelector('.custom-popup-overlay');
+    if (existingPopup) {
+        existingPopup.remove();
+    }
+    
+    // Icon mapping
+    const icons = {
+        success: '🎉',
+        error: '❌',
+        warning: '⚠️',
+        info: 'ℹ️'
+    };
+    
+    const icon = icons[type] || icons.info;
+    
+    // Create popup
+    const overlay = document.createElement('div');
+    overlay.className = 'custom-popup-overlay';
+    overlay.innerHTML = `
+        <div class="custom-popup">
+            <div class="custom-popup-icon">${icon}</div>
+            <div class="custom-popup-message">${message}</div>
+            <button class="custom-popup-button" onclick="closePopup()">OK</button>
+        </div>
+    `;
+    
+    document.body.appendChild(overlay);
+    
+    // Close on overlay click
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+            closePopup();
+        }
+    });
+}
+
+function closePopup() {
+    const popup = document.querySelector('.custom-popup-overlay');
+    if (popup) {
+        popup.style.animation = 'fadeOut 0.2s ease-out';
+        setTimeout(() => popup.remove(), 200);
+    }
+}
+
+// Add fadeOut animation
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes fadeOut {
+        from { opacity: 1; }
+        to { opacity: 0; }
+    }
+`;
+document.head.appendChild(style);
+
 // ===== INITIALIZATION =====
 async function initializeFarcaster() {
     try {
@@ -274,7 +331,7 @@ async function searchUser(searchInput) {
         const searchTerm = searchInput.trim();
         
         if (!searchTerm) {
-            alert('Please enter a search term');
+            showPopup('Please enter a search term', 'warning');
             return;
         }
         
@@ -297,7 +354,7 @@ async function searchUser(searchInput) {
                 } else if (profile && profile.custody_address) {
                     await viewUserProfile(profile.custody_address);
                 } else {
-                    alert('No verified address found for this FID');
+                    showPopup('No verified address found for this FID', 'error');
                 }
             }
             // Search by address (0x...)
@@ -326,10 +383,10 @@ async function searchUser(searchInput) {
                         } else if (profile.custody_address) {
                             await viewUserProfile(profile.custody_address);
                         } else {
-                            alert('No verified Ethereum address found for this user');
+                            showPopup('No verified Ethereum address found for this user', 'error');
                         }
                     } else {
-                        alert('User not found. Try searching by:\n• FID (number)\n• Address (0x...)\n• Username');
+                        showPopup('User not found. Try searching by:<br>• FID (number)<br>• Address (0x...)<br>• Username', 'info');
                     }
                 } else {
                     await viewUserProfile(user.author);
@@ -341,7 +398,7 @@ async function searchUser(searchInput) {
         }
     } catch (error) {
         console.error('Search error:', error);
-        alert('Search failed. Please try again.');
+        showPopup('Search failed. Please try again.', 'error');
         
         const searchButton = document.querySelector('.search-button');
         if (searchButton) {
@@ -494,7 +551,7 @@ async function viewUserProfile(address) {
     } catch (error) {
         console.error('Error viewing profile:', error);
         state.loading = false;
-        alert('Failed to load user profile');
+        showPopup('Failed to load user profile', 'error');
         state.currentView = 'feed';
         renderApp();
     }
@@ -586,7 +643,7 @@ async function loadPosts() {
                     caption: postData[5] || postData.caption || '',
                     timestamp: new Date((Number(postData[6] || postData.timestamp || 0)) * 1000),
                     likes: Number(postData[7] || postData.likes || 0),
-                    commentCount: Number(postData[8] || 0), // NEW: Get comment count
+                    commentCount: Number(postData[8] || 0),
                     hasLiked: hasLiked
                 };
                 
@@ -626,17 +683,17 @@ async function loadPosts() {
 // ===== CREATE POST =====
 async function createPost() {
     if (!state.imageFile) {
-        alert('Please select an image');
+        showPopup('Please select an image', 'warning');
         return;
     }
 
     if ((state.userPostCount || 0) >= MAX_POSTS) {
-        alert('You have reached the maximum post limit');
+        showPopup('You have reached the maximum post limit', 'warning');
         return;
     }
 
     if (!state.fid || state.fid === 0) {
-        alert('⚠️ Please wait for Farcaster profile to load');
+        showPopup('Please wait for Farcaster profile to load', 'warning');
         return;
     }
 
@@ -674,14 +731,14 @@ async function createPost() {
         state.loading = false;
         renderApp();
         
-        alert('Post created successfully! 🎉');
+        showPopup('Post created successfully! 🎉', 'success');
         window.scrollTo({ top: 0, behavior: 'smooth' });
         
     } catch (err) {
         console.error('Error creating post:', err);
         state.loading = false;
         renderApp();
-        alert('Failed to create post: ' + err.message);
+        showPopup('Failed to create post: ' + err.message, 'error');
     }
 }
 
@@ -827,12 +884,12 @@ async function createComment(postId) {
     }
     
     if (!commentText || !commentText.trim()) {
-        alert('Please enter a comment');
+        showPopup('Please enter a comment', 'warning');
         return;
     }
     
     if (!state.fid || state.fid === 0) {
-        alert('⚠️ Please wait for Farcaster profile to load');
+        showPopup('Please wait for Farcaster profile to load', 'warning');
         return;
     }
     
@@ -872,7 +929,7 @@ async function createComment(postId) {
         console.error('Error creating comment:', error);
         state.loading = false;
         renderApp();
-        alert('Failed to create comment: ' + (error.message || 'Unknown error'));
+        showPopup('Failed to create comment: ' + (error.message || 'Unknown error'), 'error');
     }
 }
 
@@ -906,7 +963,7 @@ function handleFileSelect(event) {
     const file = event.target.files[0];
     if (file && file.type.startsWith('image/')) {
         if (file.size > 10 * 1024 * 1024) {
-            alert('Image must be less than 10MB');
+            showPopup('Image must be less than 10MB', 'warning');
             return;
         }
         state.imageFile = file;
@@ -1510,6 +1567,9 @@ window.state = state;
 window.toggleComments = toggleComments;
 window.createComment = createComment;
 window.saveCommentText = saveCommentText;
+// Popup exports
+window.showPopup = showPopup;
+window.closePopup = closePopup;
 
 // ===== INITIALIZE =====
 (async () => {
