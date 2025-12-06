@@ -1243,7 +1243,7 @@ function renderApp() {
                             ? `<img src="${state.imagePreview}" class="image-preview" />` 
                             : `<div class="upload-prompt">
                                 <strong>Click to upload</strong> your real photo<br />
-                                <small>Will be stored on IPFS (max 10MB)</small>
+                                <small>Will be stored onchain ( real face / your moments)</small>
                                </div>`
                         }
                     </div>
