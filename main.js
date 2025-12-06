@@ -15,16 +15,16 @@ import {
   waitForTransactionReceipt,
   http
 } from '@wagmi/core';
-import { arbitrum } from '@wagmi/core/chains';
+import { base } from '@wagmi/core/chains';
 import { farcasterMiniApp } from '@farcaster/miniapp-wagmi-connector';
 import { createAppKit } from '@reown/appkit';
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi';
 
 // ===== CONFIGURATION =====
-const CONTRACT_ADDRESS = "0xa095322BE4Dcf336249471A0dCC8114e5E12Cec9";
+const CONTRACT_ADDRESS = "0x5F74269b1ceb756D93B8C11F051a32E764774169";
 const PINATA_JWT = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiIzNWVlZTc5Zi0xMzU5LTRmNDEtOTkyMC1mMzUwMmI1NWQwOGQiLCJlbWFpbCI6InN1bWl0am9iNzAzQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJwaW5fcG9saWN5Ijp7InJlZ2lvbnMiOlt7ImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxLCJpZCI6IkZSQTEifSx7ImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxLCJpZCI6Ik5ZQzEifV0sInZlcnNpb24iOjF9LCJtZmFfZW5hYmxlZCI6ZmFsc2UsInN0YXR1cyI6IkFDVElWRSJ9LCJhdXRoZW50aWNhdGlvblR5cGUiOiJzY29wZWRLZXkiLCJzY29wZWRLZXlLZXkiOiI0YzRmNjZhYzlmY2RkNTk2MjBmNiIsInNjb3BlZEtleVNlY3JldCI6IjFhYTEwNDBjNGIwMDdjOWQ4ZWFlMzliODE5Yzg2OGIyZjliMDM2MTY4ZGY1YmFlYjM0OGI3YTliODE1MTI4MjAiLCJleHAiOjE3OTM0Nzk2MTR9.p1NEgDx4aPs71Uol63ZzUVj3XgfRCgsRgGuFDssJ5qY";
 const NEYNAR_API_KEY = "8BF81B8C-C491-4735-8E1C-FC491FF048D4";
-const ARBITRUM_CHAIN_ID = 42161;
+const BASE_CHAIN_ID = 8453;
 const MAX_POSTS = 20;
 const PROJECT_ID = '6be120a150654d42b97a3ed83c1bf1c4';
 
@@ -93,7 +93,7 @@ async function initializeWallet() {
         console.log('🔄 Initializing wagmi wallet with Reown AppKit...');
         
         const wagmiAdapter = new WagmiAdapter({
-            networks: [arbitrum],
+            networks: [base],
             projectId: PROJECT_ID,
             ssr: false
         });
@@ -102,7 +102,7 @@ async function initializeWallet() {
 
         const modal = createAppKit({
             adapters: [wagmiAdapter],
-            networks: [arbitrum],
+            networks: [base],
             projectId: PROJECT_ID,
             metadata: {
                 name: 'Face Caster',
@@ -370,7 +370,7 @@ async function viewUserProfile(address) {
                 abi: CONTRACT_ABI,
                 functionName: 'getUserFid',
                 args: [address],
-                chainId: ARBITRUM_CHAIN_ID
+                chainId: BASE_CHAIN_ID
             });
             userFid = Number(userFid);
             console.log('📋 User FID from contract:', userFid);
@@ -418,7 +418,7 @@ async function viewUserProfile(address) {
                     abi: CONTRACT_ABI,
                     functionName: 'getUserPostsByFid',
                     args: [userFid],
-                    chainId: ARBITRUM_CHAIN_ID
+                    chainId: BASE_CHAIN_ID
                 });
                 console.log(`📝 Found ${userPostIds.length} posts for FID ${userFid}`);
             } catch (error) {
@@ -428,7 +428,7 @@ async function viewUserProfile(address) {
                     abi: CONTRACT_ABI,
                     functionName: 'getUserPosts',
                     args: [address],
-                    chainId: ARBITRUM_CHAIN_ID
+                    chainId: BASE_CHAIN_ID
                 });
             }
         } else {
@@ -437,7 +437,7 @@ async function viewUserProfile(address) {
                 abi: CONTRACT_ABI,
                 functionName: 'getUserPosts',
                 args: [address],
-                chainId: ARBITRUM_CHAIN_ID
+                chainId: BASE_CHAIN_ID
             });
         }
         
@@ -449,7 +449,7 @@ async function viewUserProfile(address) {
                     abi: CONTRACT_ABI,
                     functionName: 'getPost',
                     args: [id],
-                    chainId: ARBITRUM_CHAIN_ID
+                    chainId: BASE_CHAIN_ID
                 });
                 
                 const hasLiked = state.account ? await readContract(state.walletConfig, {
@@ -457,7 +457,7 @@ async function viewUserProfile(address) {
                     abi: CONTRACT_ABI,
                     functionName: 'hasUserLiked',
                     args: [id, state.account],
-                    chainId: ARBITRUM_CHAIN_ID
+                    chainId: BASE_CHAIN_ID
                 }) : false;
 
                 const authorAddress = postData[1] || postData.author || '';
@@ -545,7 +545,7 @@ async function loadPosts() {
             address: CONTRACT_ADDRESS,
             abi: CONTRACT_ABI,
             functionName: 'getAllPostIds',
-            chainId: ARBITRUM_CHAIN_ID
+            chainId: BASE_CHAIN_ID
         });
         
         console.log('📋 Found', postIds.length, 'posts');
@@ -558,7 +558,7 @@ async function loadPosts() {
                     abi: CONTRACT_ABI,
                     functionName: 'getPost',
                     args: [id],
-                    chainId: ARBITRUM_CHAIN_ID
+                    chainId: BASE_CHAIN_ID
                 });
                 
                 const hasLiked = state.account ? await readContract(state.walletConfig, {
@@ -566,7 +566,7 @@ async function loadPosts() {
                     abi: CONTRACT_ABI,
                     functionName: 'hasUserLiked',
                     args: [id, state.account],
-                    chainId: ARBITRUM_CHAIN_ID
+                    chainId: BASE_CHAIN_ID
                 }) : false;
 
                 const authorFid = Number(postData[2] || postData.authorFid || 0);
@@ -607,7 +607,7 @@ async function loadPosts() {
                     abi: CONTRACT_ABI,
                     functionName: 'getPostCountByFid',
                     args: [state.fid],
-                    chainId: ARBITRUM_CHAIN_ID
+                    chainId: BASE_CHAIN_ID
                 });
                 state.userPostCount = Number(userPostCount);
             } catch (error) {
@@ -654,13 +654,13 @@ async function createPost() {
             abi: CONTRACT_ABI,
             functionName: 'createPost',
             args: [ipfsHash, caption, state.fid],
-            chainId: ARBITRUM_CHAIN_ID
+            chainId: BASE_CHAIN_ID
         });
         
         console.log('⏳ Waiting for transaction confirmation...');
         await waitForTransactionReceipt(state.walletConfig, {
             hash: hash,
-            chainId: ARBITRUM_CHAIN_ID
+            chainId: BASE_CHAIN_ID
         });
 
         console.log('✅ Transaction confirmed!');
@@ -694,19 +694,19 @@ async function toggleLike(postId, hasLiked) {
                 abi: CONTRACT_ABI,
                 functionName: 'unlikePost',
                 args: [postId],
-                chainId: ARBITRUM_CHAIN_ID
+                chainId: BASE_CHAIN_ID
             })
             : await writeContract(state.walletConfig, {
                 address: CONTRACT_ADDRESS,
                 abi: CONTRACT_ABI,
                 functionName: 'likePost',
                 args: [postId],
-                chainId: ARBITRUM_CHAIN_ID
+                chainId: BASE_CHAIN_ID
             });
             
         await waitForTransactionReceipt(state.walletConfig, {
             hash: hash,
-            chainId: ARBITRUM_CHAIN_ID
+            chainId: BASE_CHAIN_ID
         });
         
         await loadPosts();
@@ -745,7 +745,7 @@ async function loadComments(postId) {
                 abi: CONTRACT_ABI,
                 functionName: 'getPost',
                 args: [postId],
-                chainId: ARBITRUM_CHAIN_ID
+                chainId: BASE_CHAIN_ID
             });
         } catch (postError) {
             console.log('⚠️ Post does not exist or has been deleted:', postId);
@@ -759,7 +759,7 @@ async function loadComments(postId) {
             abi: CONTRACT_ABI,
             functionName: 'getPostComments',
             args: [postId],
-            chainId: ARBITRUM_CHAIN_ID
+            chainId: BASE_CHAIN_ID
         });
         
         console.log(`Found ${commentIds.length} comments`);
@@ -772,7 +772,7 @@ async function loadComments(postId) {
                     abi: CONTRACT_ABI,
                     functionName: 'getComment',
                     args: [commentId],
-                    chainId: ARBITRUM_CHAIN_ID
+                    chainId: BASE_CHAIN_ID
                 });
                 
                 const authorFid = Number(commentData[3] || 0);
@@ -847,13 +847,13 @@ async function createComment(postId) {
             abi: CONTRACT_ABI,
             functionName: 'createComment',
             args: [postId, commentText.trim(), state.fid],
-            chainId: ARBITRUM_CHAIN_ID
+            chainId: BASE_CHAIN_ID
         });
         
         console.log('⏳ Waiting for transaction...');
         await waitForTransactionReceipt(state.walletConfig, {
             hash: hash,
-            chainId: ARBITRUM_CHAIN_ID
+            chainId: BASE_CHAIN_ID
         });
         
         console.log('✅ Comment created!');
@@ -884,11 +884,11 @@ function saveCommentText(postId, text) {
 // ===== SHARE TO FARCASTER =====
 async function shareToFarcaster(postId, imageUrl) {
     try {
-        const shareText = `Just posted on Face Caster 💜\n\nCheck out the onchain social network on farcaster, only real photos acceptable.\n\n👉 Join Facecaster`;
+        const shareText = `Just posted real photo on Face Caster 💜\n\nCheck out the onchain social network on farcaster, only real photos acceptable.\n\n👉 Join Facecaster`;
         const encodedText = encodeURIComponent(shareText);
         const frameUrl = encodeURIComponent('https://face-caster.vercel.app');
         
-        const castUrl = `https://warpcast.com/~/compose?text=${encodedText}&embeds[]=${frameUrl}`;
+        const castUrl = `https://farcaster.xyz/~/compose?text=${encodedText}&embeds[]=${frameUrl}`;
         
         if (sdk?.actions?.openUrl) {
             await sdk.actions.openUrl(castUrl);
@@ -897,7 +897,7 @@ async function shareToFarcaster(postId, imageUrl) {
         }
     } catch (error) {
         console.error('Share error:', error);
-        window.open(`https://warpcast.com/~/compose`, '_blank');
+        window.open(`https://farcaster.xyz/~/compose`, '_blank');
     }
 }
 
