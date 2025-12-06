@@ -124,6 +124,126 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
+// ===== ABOUT MODAL FUNCTIONS =====
+function showAboutModal() {
+    const overlay = document.createElement('div');
+    overlay.className = 'about-modal-overlay';
+    overlay.innerHTML = `
+        <div class="about-modal">
+            <div class="about-modal-header">
+                <h2 class="about-modal-title">About Face Caster</h2>
+                <button class="about-close-btn" onclick="closeAboutModal()">✕</button>
+            </div>
+
+            <div class="about-section">
+                <h3>🎯 Our Vision</h3>
+                <p>
+                    Face Caster is building the future of authentic social networking on the blockchain. 
+                    We believe in a world where your content is truly yours, where real photos matter, 
+                    and where social interactions are transparent and decentralized.
+                </p>
+            </div>
+
+            <div class="about-section">
+                <h3>💜 Why We Built This</h3>
+                <p>
+                    In an era of AI-generated content and fake profiles, we wanted to create a space 
+                    for authentic human connections. Every photo on Face Caster is stored permanently 
+                    on IPFS, and every interaction is recorded on the Base blockchain - making it 
+                    impossible to fake or manipulate your social history.
+                </p>
+            </div>
+
+            <div class="about-section">
+                <h3>✨ What Makes Us Special</h3>
+                <ul>
+                    <li>100% Decentralized - Your content lives on IPFS forever</li>
+                    <li>Onchain Social Graph - All interactions on Base blockchain</li>
+                    <li>Real Photos Only - Quality over quantity (20 posts max)</li>
+                    <li>Farcaster Native - Built as a Farcaster Mini App</li>
+                    <li>True Ownership - You own your content, not us</li>
+                    <li>No Algorithms - Chronological feed of authentic moments</li>
+                </ul>
+            </div>
+
+            <div class="about-section">
+                <h3>🚀 Built With</h3>
+                <p>
+                    Face Caster is powered by cutting-edge Web3 technology:
+                </p>
+                <ul>
+                    <li>Base Blockchain - L2 scaling for fast, cheap transactions</li>
+                    <li>IPFS via Pinata - Decentralized permanent storage</li>
+                    <li>Reown AppKit - Universal wallet connection</li>
+                    <li>Farcaster Protocol - Decentralized social network</li>
+                    <li>Neynar API - Farcaster infrastructure</li>
+                </ul>
+            </div>
+
+            <div class="about-section">
+                <h3>🌟 Our Roadmap</h3>
+                <ul>
+                    <li>✅ Core posting and commenting</li>
+                    <li>✅ User profiles and search</li>
+                    <li>🔄 NFT minting for posts</li>
+                    <li>🔄 Token rewards system</li>
+                    <li>🔄 Video support</li>
+                    <li>🔄 Multi-chain expansion</li>
+                    <li>🔄 Mobile app</li>
+                </ul>
+            </div>
+
+            <div class="about-stats">
+                <div class="about-stat">
+                    <div class="about-stat-value">Base</div>
+                    <div class="about-stat-label">Blockchain</div>
+                </div>
+                <div class="about-stat">
+                    <div class="about-stat-value">IPFS</div>
+                    <div class="about-stat-label">Storage</div>
+                </div>
+                <div class="about-stat">
+                    <div class="about-stat-value">20</div>
+                    <div class="about-stat-label">Max Posts</div>
+                </div>
+                <div class="about-stat">
+                    <div class="about-stat-value">∞</div>
+                    <div class="about-stat-label">Comments</div>
+                </div>
+            </div>
+
+            <div class="about-links">
+                <a href="https://basescan.org/address/${CONTRACT_ADDRESS}" target="_blank" class="about-link">
+                    📜 View Contract
+                </a>
+                <a href="https://warpcast.com/~/channel/facecaster" target="_blank" class="about-link">
+                    🔵 Join Community
+                </a>
+                <a href="https://github.com/yourusername/face-caster" target="_blank" class="about-link">
+                    💻 Source Code
+                </a>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(overlay);
+    
+    // Close on overlay click
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+            closeAboutModal();
+        }
+    });
+}
+
+function closeAboutModal() {
+    const modal = document.querySelector('.about-modal-overlay');
+    if (modal) {
+        modal.style.animation = 'fadeOut 0.2s ease-out';
+        setTimeout(() => modal.remove(), 200);
+    }
+}
+
 // ===== INITIALIZATION =====
 async function initializeFarcaster() {
     try {
@@ -941,7 +1061,11 @@ function renderConnectWallet() {
     document.getElementById('root').innerHTML = `
         <div class="app-container">
             <header class="header">
-                <h1><img src="https://face-caster.vercel.app/logo.png" alt="Logo" class="header-logo-inline"> Face Caster</h1>
+                <h1>
+                    <img src="https://face-caster.vercel.app/logo.png" alt="Logo" class="header-logo-inline"> 
+                    Face Caster
+                    <span class="about-icon" onclick="showAboutModal()">?</span>
+                </h1>
                 <p>Decentralized real face onchain social network</p>
             </header>
             <div class="connect-wallet-section">
@@ -966,6 +1090,7 @@ function renderConnectWallet() {
 function getImageUrl(ipfsHash) {
     return `${IPFS_GATEWAY}${ipfsHash}`;
 }
+
 function renderApp() {
     const hasImage = state.imagePreview ? 'has-image' : '';
     const userPostCount = state.userPostCount || 0;
@@ -1016,7 +1141,11 @@ function renderApp() {
         document.getElementById('root').innerHTML = `
             <div class="app-container">
                 <header class="header">
-                    <h1><img src="https://face-caster.vercel.app/logo.png" alt="Logo" class="header-logo-inline"> Face Caster</h1>
+                    <h1>
+                        <img src="https://face-caster.vercel.app/logo.png" alt="Logo" class="header-logo-inline"> 
+                        Face Caster
+                        <span class="about-icon" onclick="showAboutModal()">?</span>
+                    </h1>
                     <p>Decentralized real face onchain social network.</p>
                 </header>
 
@@ -1200,7 +1329,11 @@ function renderApp() {
     document.getElementById('root').innerHTML = `
         <div class="app-container">
             <header class="header">
-                <h1><img src="https://face-caster.vercel.app/logo.png" alt="Logo" class="header-logo-inline"> Face Caster</h1>
+                <h1>
+                    <img src="https://face-caster.vercel.app/logo.png" alt="Logo" class="header-logo-inline"> 
+                    Face Caster
+                    <span class="about-icon" onclick="showAboutModal()">?</span>
+                </h1>
                 <p>Decentralized real face onchain social network.</p>
                 <div class="post-limit-indicator">
                     <span class="dot"></span>
@@ -1509,6 +1642,8 @@ window.createComment = createComment;
 window.saveCommentText = saveCommentText;
 window.showPopup = showPopup;
 window.closePopup = closePopup;
+window.showAboutModal = showAboutModal;
+window.closeAboutModal = closeAboutModal;
 
 // ===== INITIALIZE =====
 (async () => {
