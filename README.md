@@ -2,37 +2,38 @@
 
 > **Decentralized Real Face Onchain Social Network**
 
-Face Caster is a decentralized social network built on Arbitrum that enables users to share authentic moments through photos stored on IPFS. Built as a Farcaster Mini App with seamless wallet integration powered by Reown AppKit.
+Face Caster is a decentralized social network built on Base that enables users to share authentic moments through photos stored on IPFS. Built as a Farcaster Mini App with seamless wallet integration powered by Reown AppKit.
 
 ## ✨ Features
 
 - 📷 **Share Real Photos** - Upload authentic moments stored permanently on IPFS
-- 🔗 **Onchain Posts** - All posts recorded on Arbitrum blockchain
+- 🔗 **Onchain Posts** - All posts recorded on Base blockchain
 - 👤 **User Profiles** - View and search user profiles by FID, address, or username
 - ❤️ **Like System** - Like/unlike posts with onchain transactions
+- 💬 **Comment System** - Comment on posts with onchain storage
 - 🔍 **Advanced Search** - Search users by Farcaster FID, Ethereum address, or username
 - 🔵 **Farcaster Integration** - Share posts directly to Farcaster/Warpcast
 - 💜 **Farcaster Mini App** - Native experience within Farcaster clients
-- 🌐 **IPFS Storage** - Decentralized photo storage via Pinata
+- 🌐 **IPFS Storage** - Decentralized photo storage via Pinata with custom gateway
 - 🚫 **Post Limits** - Maximum 20 posts per user to ensure quality
 
 ## 🛠️ Technical Stack
 
 ### Frontend
-* **Framework**: React with Vite
+* **Framework**: Vanilla JavaScript with Vite
 * **Styling**: Custom CSS with CSS Variables
 * **Fonts**: Google Fonts (Poppins, Space Mono)
 * **Module Bundler**: Vite (ES Modules)
-* **State Management**: React Hooks with local state
+* **State Management**: Local state management
 
 ### Blockchain Integration
-* **Network**: Arbitrum Mainnet (Chain ID: 42161)
+* **Network**: Base Mainnet (Chain ID: 8453)
 * **Wallet Integration**:
    * 🌟 **[Reown AppKit](https://reown.com/)** (formerly WalletConnect v2) - Primary wallet connection system
-   * **Wagmi Core** (React Hooks for Ethereum) - Blockchain interaction layer
+   * **Wagmi Core** - Blockchain interaction layer
    * **Farcaster Mini App Connector** - Seamless Farcaster wallet integration
    * Supports 300+ wallets including MetaMask, Coinbase Wallet, WalletConnect
-* **Smart Contracts**: Solidity (ERC standards)
+* **Smart Contracts**: Solidity with comment functionality
 * **Libraries**: 
    * `@wagmi/core` - Ethereum interaction
    * `@reown/appkit` - Wallet connection modal
@@ -40,15 +41,15 @@ Face Caster is a decentralized social network built on Arbitrum that enables use
    * `viem` - TypeScript interface for Ethereum
 
 ### Web3 Infrastructure
-* **RPC Provider**: Alchemy (Arbitrum Mainnet)
-* **IPFS Gateway**: Pinata (file storage & retrieval)
+* **RPC Provider**: Base Mainnet
+* **IPFS Gateway**: Custom Pinata Gateway (`monocats.mypinata.cloud`)
 * **Farcaster API**: Neynar API v2 (user profiles, search)
 * **Smart Contract ABI**: Custom FaceCaster contract
 
 ### Backend Services
-* **IPFS Pinning**: Pinata Cloud
-* **Profile Data**: Neynar Farcaster API
-* **User Search**: Neynar Search API
+* **IPFS Pinning**: Pinata Cloud (via serverless API)
+* **Profile Data**: Neynar Farcaster API (via serverless API)
+* **API Routes**: Vercel Serverless Functions (`/api/pinata`, `/api/neynar`)
 
 ### Development Tools
 * **Package Manager**: npm/pnpm/yarn
@@ -57,7 +58,7 @@ Face Caster is a decentralized social network built on Arbitrum that enables use
 * **Buffer Polyfill**: For browser compatibility
 
 ### Hosting & Deployment
-* **Platform**: Vercel (recommended)
+* **Platform**: Vercel
 * **CDN**: Vercel Edge Network
 * **Domain**: Custom domain support
 * **SSL**: Automatic HTTPS
@@ -80,11 +81,11 @@ Face Caster leverages **Reown AppKit** (WalletConnect v2) for a superior wallet 
 ```javascript
 import { createAppKit } from '@reown/appkit';
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi';
-import { arbitrum } from '@wagmi/core/chains';
+import { base } from '@wagmi/core/chains';
 
 // Create Wagmi Adapter
 const wagmiAdapter = new WagmiAdapter({
-    networks: [arbitrum],
+    networks: [base],
     projectId: PROJECT_ID,
     ssr: false
 });
@@ -92,7 +93,7 @@ const wagmiAdapter = new WagmiAdapter({
 // Create AppKit Modal
 const modal = createAppKit({
     adapters: [wagmiAdapter],
-    networks: [arbitrum],
+    networks: [base],
     projectId: PROJECT_ID,
     metadata: {
         name: 'Face Caster',
@@ -151,28 +152,15 @@ yarn install
 
 ### 3. Environment Variables
 
-Create a `.env` file in the root directory:
+**For Vercel Deployment** - Add these in Vercel Dashboard → Settings → Environment Variables:
 
 ```bash
-# Reown AppKit (formerly WalletConnect)
-VITE_REOWN_PROJECT_ID=your_reown_project_id
-
-# Smart Contract
-VITE_CONTRACT_ADDRESS=0x9BBe1531e34897e55Ecc5cf7Bf887BF73542cc85
-
-# IPFS (Pinata)
-VITE_PINATA_JWT=your_pinata_jwt_token
-
-# Farcaster (Neynar)
-VITE_NEYNAR_API_KEY=your_neynar_api_key
-
-# Network
-VITE_CHAIN_ID=42161
-VITE_RPC_URL=https://arb-mainnet.g.alchemy.com/v2/your_alchemy_key
-
-# App URL
-VITE_APP_URL=http://localhost:5173
+PINATA_JWT=your_pinata_jwt_token
+NEYNAR_API_KEY=your_neynar_api_key
+PROJECT_ID=6be120a150654d42b97a3ed83c1bf1c4
 ```
+
+⚠️ **Important**: API keys are secured server-side via `/api` routes. Never expose them in client code!
 
 ### 4. Get API Keys
 
@@ -180,24 +168,21 @@ VITE_APP_URL=http://localhost:5173
 1. Go to [Reown Cloud](https://cloud.reown.com/)
 2. Create a new project
 3. Copy your Project ID
-4. Add to `.env` as `VITE_REOWN_PROJECT_ID`
+4. Add to Vercel as `PROJECT_ID`
 
 #### Pinata JWT (Required)
 1. Sign up at [Pinata](https://app.pinata.cloud/)
 2. Create API key with pinning permissions
 3. Copy JWT token
-4. Add to `.env` as `VITE_PINATA_JWT`
+4. Add to Vercel as `PINATA_JWT`
+
+#### Pinata Custom Gateway (Configured)
+Currently using: `https://monocats.mypinata.cloud/ipfs/`
 
 #### Neynar API Key (Required)
 1. Sign up at [Neynar](https://neynar.com/)
 2. Get your API key from dashboard
-3. Add to `.env` as `VITE_NEYNAR_API_KEY`
-
-#### Alchemy RPC (Optional but Recommended)
-1. Sign up at [Alchemy](https://www.alchemy.com/)
-2. Create an Arbitrum app
-3. Copy the RPC URL
-4. Add to `.env` as `VITE_RPC_URL`
+3. Add to Vercel as `NEYNAR_API_KEY`
 
 ### 5. Run Development Server
 
@@ -224,7 +209,10 @@ npm run preview
 
 1. Create account at [Vercel](https://vercel.com)
 2. Import your project
-3. Add environment variables in Vercel dashboard
+3. Add environment variables in Vercel dashboard:
+   - `PINATA_JWT`
+   - `NEYNAR_API_KEY`
+   - `PROJECT_ID`
 4. Deploy!
 
 ### Deploy to Other Platforms
@@ -254,7 +242,7 @@ The app includes Farcaster Mini App metadata in `index.html`:
       "name":"Face caster",
       "url":"https://face-caster.vercel.app",
       "splashImageUrl":"https://face-caster.vercel.app/splash.png",
-      "splashBackgroundColor":"#ff9500"
+      "splashBackgroundColor":"#834AF1"
     }
   }
 }' />
@@ -277,7 +265,8 @@ Create these images in your `public/` folder:
 
 ### Contract Address
 ```
-Arbitrum: 0x9BBe1531e34897e55Ecc5cf7Bf887BF73542cc85
+Base Mainnet: 0x5F74269b1ceb756D93B8C11F051a32E764774169
+Chain ID: 8453
 ```
 
 ### Main Functions
@@ -296,6 +285,16 @@ function likePost(uint256 _postId) public
 // Unlike a post
 function unlikePost(uint256 _postId) public
 
+// Create a comment
+function createComment(
+    uint256 _postId,
+    string memory _text,
+    uint256 _fid
+) public
+
+// Delete a comment
+function deleteComment(uint256 _commentId) public
+
 // Get all post IDs
 function getAllPostIds() public view returns (uint256[])
 
@@ -308,8 +307,15 @@ function getPost(uint256 _postId) public view returns (
     string memory ipfsHash,
     string memory caption,
     uint256 timestamp,
-    uint256 likes
+    uint256 likes,
+    uint256 commentCount
 )
+
+// Get post comments
+function getPostComments(uint256 _postId) public view returns (uint256[])
+
+// Get comment details
+function getComment(uint256 _commentId) public view returns (...)
 
 // Get user posts by FID
 function getUserPostsByFid(uint256 _fid) public view returns (uint256[])
@@ -335,6 +341,14 @@ Edit CSS variables in `index.html`:
     --text-primary: #2a2a2a;
     --text-secondary: #6a6a6a;
 }
+```
+
+### IPFS Gateway
+
+Change in `main.js`:
+
+```javascript
+const IPFS_GATEWAY = 'https://monocats.mypinata.cloud/ipfs/';
 ```
 
 ### Reown AppKit Theme
@@ -367,6 +381,13 @@ const MAX_POSTS = 20; // Change this value
 4. Click "Post to Face Caster"
 5. Confirm transaction in wallet
 6. Wait for blockchain confirmation
+
+### Commenting on Posts
+
+1. Click the 💬 icon on any post
+2. Type your comment
+3. Press "Send" or Enter
+4. Confirm transaction in wallet
 
 ### Searching Users
 
@@ -402,14 +423,15 @@ const MAX_POSTS = 20; // Change this value
 - ✅ Wallet signature verification
 - ✅ Rate limiting via post limits
 - ✅ Secure RPC connections
-- ✅ Environment variable protection
+- ✅ Environment variables protected server-side
+- ✅ API routes prevent key exposure
 
 ## 🐛 Troubleshooting
 
 ### Wallet Won't Connect
 
 - Check Reown Project ID is correct
-- Ensure you're on Arbitrum network
+- Ensure you're on Base network
 - Try different wallet or browser
 - Clear cache and refresh
 
@@ -422,17 +444,17 @@ const MAX_POSTS = 20; // Change this value
 
 ### IPFS Upload Failing
 
-- Verify Pinata JWT is valid
+- Verify Pinata JWT is valid in Vercel env vars
 - Check image size (max 10MB)
 - Ensure stable internet connection
-- Try different image format
+- Check `/api/pinata` route is working
 
 ### Profile Search Not Working
 
-- Verify Neynar API key
+- Verify Neynar API key in Vercel env vars
 - Check if user exists on Farcaster
 - Try searching by FID instead
-- Ensure API rate limits not exceeded
+- Check `/api/neynar` route is working
 
 ## 📊 Performance
 
@@ -440,7 +462,7 @@ const MAX_POSTS = 20; // Change this value
 - 🎯 **Efficient Caching** - Profile and image caching
 - 🔄 **Smart Updates** - Only reload when needed
 - 📱 **Mobile Optimized** - Responsive design
-- 🌐 **CDN Delivery** - Fast global access
+- 🌐 **CDN Delivery** - Fast global access via custom gateway
 
 ## 🤝 Contributing
 
@@ -459,7 +481,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - [Farcaster](https://www.farcaster.xyz/) - Decentralized social protocol
 - [Reown (WalletConnect)](https://reown.com/) - Universal wallet connection
-- [Arbitrum](https://arbitrum.io/) - Layer 2 scaling solution
+- [Base](https://base.org/) - Layer 2 scaling solution
 - [Pinata](https://pinata.cloud/) - IPFS pinning service
 - [Neynar](https://neynar.com/) - Farcaster API infrastructure
 - [Wagmi](https://wagmi.sh/) - React hooks for Ethereum
@@ -473,8 +495,8 @@ For support and questions:
 
 ## 🗺️ Roadmap
 
+- [x] Comments system
 - [ ] NFT minting for posts
-- [ ] Comments system
 - [ ] Post editing/deletion
 - [ ] Advanced filters
 - [ ] Multiple image uploads
@@ -486,4 +508,4 @@ For support and questions:
 
 ---
 
-**Built with 💜 on Arbitrum | Powered by Reown AppKit**
+**Built with 💜 on Base | Powered by Reown AppKit**
